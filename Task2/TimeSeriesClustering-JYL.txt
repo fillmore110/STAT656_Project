@@ -1,0 +1,19 @@
+Part 1:
+I want to understand non-supervised clustering methods at a deeper level for time series data
+> How does changing the distance metric affect the clustering solution? 
+> How to pick the optimium K for K-means
+
+Part 2:
+Non supervised means that our data does not have a Y variable or a prediction variable. Instead we are trying find relationships within the data. 
+To cluster data together, we need a way to evaluate the similarity or dissimilarity between the time series. This is known as a distance metric
+
+Part 3/4: 
+What is time series?
+> Time series data has the additional complexity where the sequence of the data matters. In a classic observational study dataset, one can assume that one sample is independent from the next.
+> In a time series, we will have a matrix of data of x stocks by t days. We are looking to cluster the x stocks by evaluating the similarity of the behavior across the t days
+> We will need to create features based on our time series in order to cluster the time series into subgroups. 
+
+What is K-means
+> K means seeks to make the within cluster variation as small as possible.
+> K means is a greedy approximation where we assign observations to the K clusters and then iterate by calculating a centroid and then a p length of means
+> To pick K, we can use the elbow method or the CH index

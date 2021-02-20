@@ -9,37 +9,47 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(quantmod)
 library(tidyverse)
+rm(list=ls())
 ```
 
 ## R Markdown
 
 
-```{r, cache=TRUE}
-rm(list=ls())
-dowStockTicker = read.csv('D:/James/Documents/tamu/STAT656/Homework/project/data/DOW_STOCK_TICKERS.csv')
-getSymbols(dowStockTicker[,1], from = "2019-02-01", to="2021-02-01")
-
-# https://stackoverflow.com/questions/44707472/how-to-loop-through-objects-in-the-global-environment-r
-# For each downloaded xts object, put them into a list and calculate the daily log return
-dailyLogReturn = lapply(setNames(ls(), ls()), function(i) {
-  x = get(i)
-  if(is.xts(x)) {
-    dailyReturn(Ad(x), type="log")
+```{r}
+downloadProcessStockData <- function(fileLoc, startDate, endDate) {
+  stockTicker = read.csv(fileLoc)
+  getSymbols(stockTicker[,1], from = startDate, to = endDate)
+  
+  # https://stackoverflow.com/questions/44707472/how-to-loop-through-objects-in-the-global-environment-r
+  # For each downloaded xts object, put them into a list and calculate the daily log return
+  dailyLogReturn = lapply(setNames(ls(), ls()), function(i) {
+    x = get(i)
+    if(is.xts(x)) {
+      dailyReturn(Ad(x), type="log")
+    }
+  })
+  #Remove NAs
+  dailyLogReturn = dailyLogReturn[!sapply(dailyLogReturn, is.null)]
+  
+  # Create a dataframe using the first stock
+  df = data.frame(index(dailyLogReturn[[1]]), coredata(dailyLogReturn[[1]]))
+  names(df)[1] = "Date"
+  names(df)[2] = names(dailyLogReturn)[1]
+  
+  # Append each stock using a full join on date. This handles stocks like DOW where the ticker was just created
+  for (i in 2:length(dailyLogReturn)) {
+    tempDf = data.frame(index(dailyLogReturn[[i]]), coredata(dailyLogReturn[[i]]))
+    names(tempDf)[1] = "Date"
+    names(tempDf)[2] = names(dailyLogReturn)[i]
+    df = full_join(df, tempDf, by="Date")
   }
-})
-#Remove NAs
-dailyLogReturn = dailyLogReturn[!sapply(dailyLogReturn, is.null)]
-
-# Create a dataframe using the first stock
-df = data.frame(index(dailyLogReturn[[1]]), coredata(dailyLogReturn[[1]]))
-names(df)[1] = "Date"
-names(df)[2] = names(dailyLogReturn)[1]
-
-# Append each stock using a full join on date. This handles stocks like DOW where the ticker was just created
-for (i in 2:length(dailyLogReturn)) {
-  tempDf = data.frame(index(dailyLogReturn[[i]]), coredata(dailyLogReturn[[i]]))
-  names(tempDf)[1] = "Date"
-  names(tempDf)[2] = names(dailyLogReturn)[i]
-  df = full_join(df, tempDf, by="Date")
+  return(df)
 }
+```
+
+```{r}
+dowStockTicker = 'D:/James/Documents/tamu/STAT656/Homework/project/data/DOW_STOCK_TICKERS.csv'
+startDate = "2019-02-01"
+endDate = "2021-02-01"
+df = downloadProcessStockData(dowStockTicker, startDate, endDate)
 ```
