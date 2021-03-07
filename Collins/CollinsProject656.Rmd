@@ -1,0 +1,34 @@
+---
+title: "STAT 656: Project "
+subtitle: "Unsupervised Time Series Clustering of S&P 500 Price, Volatility, and Financials"
+author: "Rebeca Collins"
+date: "3/7/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE, warning=FALSE}
+require(dplyr)
+require(caret)
+require(quantmod)
+require(tidyverse)
+require(tidyquant)
+
+rm(list=ls())
+```
+
+
+
+#Pull in Time Series Objects
+```{r}
+
+```
+
+#Finding Dissimilarity Measures
+```{r}
+
+```
+
+#Finding the Clusters
+```{r}
+
+```
