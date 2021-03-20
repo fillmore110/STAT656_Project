@@ -1,0 +1,89 @@
+---
+title: "STAT 656: Project "
+subtitle: ""
+author: "Andrew Fillmore"
+date: "3/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE, warning=FALSE}
+require(dplyr)
+require(caret)
+require(quantmod)
+require(tidyverse)
+require(tidyquant)
+require(BatchGetSymbols)
+
+rm(list=ls())
+```
+
+
+First we must get our data
+
+```{r import_data}
+tickers <- sort(GetSP500Stocks()$Tickers)
+tickers <- unlist(lapply(tickers, function(x) {str_replace(x, '\\.', '-')}))
+
+#tickers <- GetFTSE100Stocks()$tickers
+#tickers <- sapply(tickers, function(x) {str_replace(x, '\\.', '')})
+
+stocks_tmp <- tq_get(tickers, from='2020-01-01', to='2020-03-31', verbose=T)
+
+stocks <- stocks_tmp %>%
+  drop_na %>%
+  select(symbol, date, adjusted) %>%
+  pivot_wider(names_from=date, values_from=adjusted)
+
+dates <- stocks_tmp %>%
+  drop_na %>%
+  select(symbol, date, adjusted) %>%
+  pivot_wider(names_from=symbol, values_from=adjusted)
+```
+
+Transform the data to get closer to normality.
+
+```{r}
+nums <- stocks %>%
+  select(where(is.numeric))
+
+pre_proc <- preProcess(nums, method=c('YeoJohnson', 'center', 'scale'))
+
+stocks_trans <- predict(pre_proc, newdata = nums)
+
+
+nums <- dates %>%
+  select(where(is.numeric))
+
+pre_proc <- preProcess(nums, method=c('YeoJohnson', 'center', 'scale'))
+
+dates_trans <- predict(pre_proc, newdata = nums)
+  
+                    
+```
+
+Now we look at the Principle Components.
+
+```{r PCA_stocks}
+stocks_PC <- prcomp(stocks_trans %>% drop_na, scale=T, center=T)
+stocks_PC$sdev
+screeplot(stocks_PC)
+```
+```{r PCA_dates}
+dates_PC <- prcomp(dates_trans %>% drop_na, scale=T, center=T)
+dates_PC$sdev
+screeplot(dates_PC)
+```
+
+Most of the variability is captured in a single principle component.
+
+```{r PCA_plot_stocks}
+stocks_PC_df <- data.frame(stocks_PC$x)
+ggplot(data=stocks_PC_df, aes(x=PC1, y=PC2)) + 
+  geom_point()
+```
+```{r PCA_plot_dates}
+dates_PC_df <- data.frame(dates_PC$x)
+ggplot(data=dates_PC_df, aes(x=PC1, y=PC2)) + 
+  geom_point()
+```
+
