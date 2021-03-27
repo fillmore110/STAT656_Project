@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0073)http://www.rdatamining.com/examples/time-series-clustering-classification -->
+<html xmlns="http://www.w3.org/1999/xhtml" itemscope="" itemtype="http://schema.org/WebPage"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<script type="text/javascript">/* Copyright 2008 Google. */ (function() { /*
+
+Copyright The Closure Library Authors.
+SPDX-License-Identifier: Apache-2.0
+*/
+(function(){function e(g){this.t={};this.tick=function(h,k,f){this.t[h]=[void 0!=f?f:(new Date).getTime(),k];if(void 0==f)try{window.console.timeStamp("CSI/"+h)}catch(m){}};this.getStartTickTime=function(){return this.t.start[0]};this.tick("start",null,g)}var a;if(window.performance)var d=(a=window.performance.timing)&&a.responseStart;var l=0<d?new e(d):new e;window.jstiming={Timer:e,load:l};if(a){var b=a.navigationStart;0<b&&d>=b&&(window.jstiming.srt=d-b)}if(a){var c=window.jstiming.load;0<b&&d>=
+b&&(c.tick("_wtsrt",void 0,b),c.tick("wtsrt_","_wtsrt",d),c.tick("tbsd_","wtsrt_"))}try{a=null,window.chrome&&window.chrome.csi&&(a=Math.floor(window.chrome.csi().pageT),c&&0<b&&(c.tick("_tbnd",void 0,window.chrome.csi().startE),c.tick("tbnd_","_tbnd",b))),null==a&&window.gtbExternal&&(a=window.gtbExternal.pageT()),null==a&&window.external&&(a=window.external.pageT,c&&0<b&&(c.tick("_tbnd",void 0,window.external.startE),c.tick("tbnd_","_tbnd",b))),a&&(window.jstiming.pt=a)}catch(g){}})(); })()
+</script>
+<link rel="shortcut icon" href="http://www.rdatamining.com/_/rsrc/1346323866995/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="http://www.gstatic.com/sites/p/4efa6c/system/app/images/apple-touch-icon.png" type="image/png">
+<script type="text/javascript">/* Copyright 2008 Google. */ (function() { function d(a){return document.getElementById(a)}window.byId=d;function g(a){return a.replace(/^\s+|\s+$/g,"")}window.trim=g;var h=[],k=0;window.JOT_addListener=function(a,b,c){var f=new String(k++);a={eventName:a,handler:b,compId:c,key:f};h.push(a);return f};window.JOT_removeListenerByKey=function(a){for(var b=0;b<h.length;b++)if(h[b].key==a){h.splice(b,1);break}};window.JOT_removeAllListenersForName=function(a){for(var b=0;b<h.length;b++)h[b].eventName==a&&h.splice(b,1)};
+window.JOT_postEvent=function(a,b,c){var f={eventName:a,eventSrc:b||{},payload:c||{}};if(window.JOT_fullyLoaded)for(b=h.length,c=0;c<b&&c<h.length;c++){var e=h[c];e&&e.eventName==a&&(f.listenerCompId=e.compId||"",(e="function"==typeof e.handler?e.handler:window[e.handler])&&e(f))}else window.JOT_delayedEvents.push({eventName:a,eventSrc:b,payload:c})};window.JOT_delayedEvents=[];window.JOT_fullyLoaded=!1;
+window.JOT_formatRelativeToNow=function(a,b){a=((new Date).getTime()-a)/6E4;if(1440<=a||0>a)return null;var c=0;60<=a&&(a/=60,c=2);2<=a&&c++;return b?window.JOT_siteRelTimeStrs[c].replace("__duration__",Math.floor(a)):window.JOT_userRelTimeStrs[c].replace("__duration__",Math.floor(a))}; })()
+</script>
+<script>
+
+  
+
+  var breadcrumbs = [{"path":"/examples","deleted":false,"title":"Examples","dir":"ltr"},{"path":"/examples/time-series-clustering-classification","deleted":false,"title":"Time Series Clustering and Classification","dir":"ltr"}];
+  var JOT_clearDotPath = 'http://www.gstatic.com/sites/p/4efa6c/system/app/images/cleardot.gif';
+
+  
+  var JOT_userRelTimeStrs = ["a minute ago","__duration__ minutes ago","an hour ago","__duration__ hours ago"];
+
+  
+  
+
+  
+
+  var webspace = {"gvizGstaticVersion":"current","enableAnalytics":true,"pageSharingId":"jotspot_page","codeembeds":{"outerIframeSrc":"https://www.gstatic.com/jotspot/embeds/code/0f08d42392f2000e7e3f3daf5b427a43/outer_iframe.html","innerIframeSrc":"https://1419698120-jotspot-embeds.googleusercontent.com/code/8d87fa64604b2a11fae2ed06104c58d3/inner_iframe.html"},"enableUniversalAnalytics":false,"sharingPolicy":"OPENED","siteTitle":"RDataMining.com: R and Data Mining","jot2atari":{"eligibility":"ineligible"},"onepickUrl":"https://docs.google.com/picker","adsensePublisherId":"ca-pub-5028529536813706","features":{"moreMobileStyleImprovements":null,"subscriptionDataMigrationInProgress":null,"plusBadge":false},"isPublic":true,"newSitesBaseUrl":"https://sites.google.com","isConsumer":false,"serverFlags":{"jot2AtariLearnMoreUrl":"https://support.google.com/sites/answer/7035197"},"domainAnalyticsAccountId":"","plusPageId":"","signInUrl":"https://accounts.google.com/AccountChooser?continue\u003dhttp://sites.google.com/a/rdatamining.com/www/examples/time-series-clustering-classification\u0026service\u003djotspot","analyticsAccountId":"UA-4389444-3","scottyUrl":"/_/upload","homePath":"/","siteNoticeUrlEnabled":null,"plusPageUrl":"","adsensePromoClickedOrSiteIneligible":true,"csiReportUri":"http://csi.gstatic.com/csi","sharingId":"jotspot","termsUrl":"//www.google.com/intl/en/policies/terms/","gvizVersion":1,"editorResources":{"sitelayout":["http://www.gstatic.com/sites/p/4efa6c/system/app/css/sitelayouteditor.css"],"text":["http://www.gstatic.com/sites/p/4efa6c/system/js/codemirror.js","http://www.gstatic.com/sites/p/4efa6c/system/app/css/codemirror_css.css","http://www.gstatic.com/sites/p/4efa6c/system/js/trog_edit__en.js","http://www.gstatic.com/sites/p/4efa6c/system/app/css/trogedit.css","/_/rsrc/1616052339000/system/app/css/editor.css","http://www.gstatic.com/sites/p/4efa6c/system/app/css/codeeditor.css","/_/rsrc/1616052339000/system/app/css/camelot/editor-jfk.css"]},"sharingUrlPrefix":"/_/sharing","isAdsenseEnabled":true,"domain":"rdatamining.com","baseUri":"","name":"www","siteTemplateId":false,"siteNoticeRevision":0,"siteNoticeUrlAddress":null,"siteNoticeMessage":"","page":{"isRtlLocale":false,"canDeleteWebspace":null,"isPageDraft":null,"parentPath":"/examples","parentWuid":"wuid:gx:6836ac957fe7cc","siteLocale":"en","timeZone":"America/Los_Angeles","type":"text","title":"Time Series Clustering and Classification","locale":"en","wuid":"wuid:gx:49ed0d6348530808","revision":4,"path":"/examples/time-series-clustering-classification","isSiteRtlLocale":false,"pageInheritsPermissions":null,"name":"time-series-clustering-classification","canChangePath":true,"state":"","properties":{},"bidiEnabled":false,"currentTemplate":{"path":"/system/app/pagetemplates/text","title":"Web Page"}},"canPublishScriptToAnyone":true,"user":{"keyboardShortcuts":true,"sessionIndex":"","onePickToken":"","guest_":true,"displayNameOrEmail":"guest","userName":"guest","uid":"","renderMobile":false,"domain":"","namespace":"","hasWriteAccess":false,"namespaceUser":false,"primaryEmail":"guest","hasAdminAccess":false},"gadgets":{"baseUri":"/system/app/pages/gadgets"}};
+  webspace.page.breadcrumbs = breadcrumbs;
+
+  
+  var JOT_siteRelTimeStrs = ["a minute ago","__duration__ minutes ago","an hour ago","__duration__ hours ago"];
+
+</script>
+<script type="text/javascript">
+                window.jstiming.load.tick('scl');
+              </script>
+<meta name="title" content="Time Series Clustering and Classification - RDataMining.com: R and Data Mining">
+<meta itemprop="name" content="Time Series Clustering and Classification - RDataMining.com: R and Data Mining">
+<meta property="og:title" content="Time Series Clustering and Classification - RDataMining.com: R and Data Mining">
+<meta name="description" content="time series clustering and classification with R">
+<meta itemprop="description" content="time series clustering and classification with R">
+<meta id="meta-tag-description" property="og:description" content="time series clustering and classification with R">
+<style type="text/css">
+</style>
+<link rel="stylesheet" type="text/css" href="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/standard-css-beigeandblue-ltr-ltr.css">
+<link rel="stylesheet" type="text/css" href="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/overlay.css">
+<link rel="stylesheet" type="text/css" href="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/allthemes-view.css">
+<!--[if IE]>
+          <link rel="stylesheet" type="text/css" href="/system/app/css/camelot/allthemes%2die.css" />
+        <![endif]-->
+<title>Time Series Clustering and Classification - RDataMining.com: R and Data Mining</title>
+<meta itemprop="image" content="http://www.rdatamining.com/_/rsrc/1421498175078/examples/time-series-clustering-classification/ts-clustering.png?height=400&amp;width=400">
+<meta property="og:image" content="http://www.rdatamining.com/_/rsrc/1421498175078/examples/time-series-clustering-classification/ts-clustering.png?height=400&amp;width=400">
+<script type="text/javascript">
+                window.jstiming.load.tick('cl');
+              </script>
+<script src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ga.js.download"></script></head>
+<body xmlns="http://www.google.com/ns/jotspot" id="body" class=" en            ">
+<div id="sites-page-toolbar" class="sites-header-divider">
+<div xmlns="http://www.w3.org/1999/xhtml" id="sites-status" class="sites-status" style="display:none;"><div id="sites-notice" class="sites-notice" role="status" aria-live="assertive"> </div></div>
+</div>
+<div id="sites-chrome-everything-scrollbar">
+<div id="sites-chrome-everything" class="">
+<div id="sites-chrome-page-wrapper" style="direction: ltr">
+<div id="sites-chrome-page-wrapper-inside">
+<div xmlns="http://www.w3.org/1999/xhtml" id="sites-chrome-header-wrapper" style="height:auto;">
+<table id="sites-chrome-header" class="sites-layout-hbox" cellspacing="0" style="height:auto;">
+<tbody><tr class="sites-header-primary-row" id="sites-chrome-userheader">
+<td id="sites-header-title" class="sites-chrome-header-valign-middle"><div class="sites-header-cell-buffer-wrapper"><h2><a href="http://www.rdatamining.com/" id="sites-chrome-userheader-logo"><img id="logo-img-id" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/customLogo.gif" alt="RDataMining.com: R and Data Mining" class="sites-logo sites-chrome-header-valign-middle "></a><a href="http://www.rdatamining.com/" dir="ltr" id="sites-chrome-userheader-title">RDataMining.com: R and Data Mining</a></h2></div></td><td class="sites-layout-searchbox sites-chrome-header-valign-middle "><div class="sites-header-cell-buffer-wrapper"><form id="sites-searchbox-form" action="http://www.rdatamining.com/system/app/pages/search" role="search"><input type="hidden" id="sites-searchbox-scope" name="scope" value="search-site"><input type="text" id="jot-ui-searchInput" name="q" size="20" value="" aria-label="Search this site"><div id="sites-searchbox-button-set" class="goog-inline-block"><div role="button" id="sites-searchbox-select-button" class="goog-inline-block jfk-button jfk-button-standard" tabindex="0" style="user-select: none;">Search this site</div><div id="sites-searchbox-select-dropdown" class="goog-inline-block goog-flat-menu-button" role="listbox" aria-expanded="false" tabindex="0" aria-haspopup="true" aria-activedescendant=":0" style="user-select: none;"><div class="goog-inline-block goog-flat-menu-button-caption" id=":0" role="option" aria-selected="true" aria-setsize="3" aria-posinset="1">Search this site</div><div class="goog-inline-block goog-flat-menu-button-dropdown sites-jfk-menu-button-dropdown"> </div></div></div></form></div></td>
+</tr>
+<tr class="sites-header-secondary-row" id="sites-chrome-horizontal-nav">
+<td colspan="2" id="sites-chrome-header-horizontal-nav-container" role="navigation">
+<div class="sites-header-nav"><ul class="sites-header-nav-container-boxes"></ul><div style="clear: both;"></div></div>
+</td>
+</tr>
+</tbody></table>
+</div>
+<div id="sites-chrome-main-wrapper">
+<div id="sites-chrome-main-wrapper-inside">
+<table id="sites-chrome-main" class="sites-layout-hbox" cellspacing="0" cellpadding="{scmCellpadding}" border="0">
+<tbody><tr>
+<td id="sites-chrome-sidebar-left" class="sites-layout-sidebar-left initial" style="width:170px">
+<div xmlns="http://www.w3.org/1999/xhtml" id="COMP_2bd" class="sites-embed" role="navigation"><div class="sites-embed-content sites-sidebar-nav"><ul role="navigation" jotid="navList" class="has-expander"><li class="topLevel nav-first "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/home" jotid="wuid:gx:3808802e20f5625" class="sites-navigation-link topLevel">Home</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/news" jotid="wuid:gx:7c0304e815f559f4" class="sites-navigation-link topLevel">News</a></div></li><li class="topLevel parent " wuid="gx:3e9a4d18c37712bf"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/training" jotid="wuid:gx:3e9a4d18c37712bf" class="sites-navigation-link topLevel">Training</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/course" jotid="wuid:gx:49a8c10c1ba5467" class="sites-navigation-link">R and Data Mining Course</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/past-trainings" jotid="wuid:gx:3eed48ae1a8b852f" class="sites-navigation-link">Past Trainings and Talks</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/ausdm2018" jotid="wuid:gx:2c2c33720d62aa51" class="sites-navigation-link">Tutorial at AusDM 2018</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/medascin" jotid="wuid:gx:4a51bb7ff947782e" class="sites-navigation-link">Tutorial at Melbourne Data Science Week</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/uc" jotid="wuid:gx:5dda53cb69305f90" class="sites-navigation-link">Short Course at University of Canberra</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/training/ml102" jotid="wuid:gx:398fea18ab3d923b" class="sites-navigation-link">Machine Learning 102 Workshop at SP Jain</a></div></li></ul></li><li class="topLevel parent " wuid="gx:19b21130ed65ee4d"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/docs" jotid="wuid:gx:19b21130ed65ee4d" class="sites-navigation-link topLevel">Documents</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/introduction-to-data-mining-with-r" jotid="wuid:gx:58c2e8862c9dac53" class="sites-navigation-link">Introduction to Data Mining with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/r-reference-card-for-data-mining" jotid="wuid:gx:4a7e23925e9872e8" class="sites-navigation-link">R Reference Card for Data Mining</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/r-and-data-mining-examples-and-case-studies" jotid="wuid:gx:274da7d018e3ba0b" class="sites-navigation-link">R and Data Mining: Examples and Case Studies</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/introduction-to-data-mining-with-r-and-data-import-export-in-r" jotid="wuid:gx:89928991d6517a" class="sites-navigation-link">Introduction to Data Mining with R and Data Import/Export in R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/data-exploration-and-visualization-with-r" jotid="wuid:gx:1b847c77e2085d1b" class="sites-navigation-link">Data Exploration and Visualization with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/regression-and-classification-with-r" jotid="wuid:gx:530bf30b7837d443" class="sites-navigation-link">Regression and Classification with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/data-clustering-with-r" jotid="wuid:gx:3d55749440bfb7c7" class="sites-navigation-link">Data Clustering with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/association-rule-mining-with-r" jotid="wuid:gx:27fbf61a773e2283" class="sites-navigation-link">Association Rule Mining with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/text-mining-with-r" jotid="wuid:gx:617159448eb34e55" class="sites-navigation-link">Text Mining with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/twitter-analysis-with-r" jotid="wuid:gx:1405dd13657da3be" class="sites-navigation-link">Twitter Data Analysis with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/docs/time-series-analysis-and-mining-with-r" jotid="wuid:gx:69dc7a38838a8c33" class="sites-navigation-link">Time Series Analysis and Mining with R</a></div></li></ul></li><li class="topLevel parent" wuid="gx:6836ac957fe7cc"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/examples" jotid="wuid:gx:6836ac957fe7cc" class="sites-navigation-link topLevel">Examples</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/exploration" jotid="wuid:gx:68ca1a5b8e9215ec" class="sites-navigation-link">Data Exploration</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/decision-tree" jotid="wuid:gx:784e0aaf41402bdc" class="sites-navigation-link">Decision Trees</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/random-forest" jotid="wuid:gx:39e72b13a133915a" class="sites-navigation-link">Random Forest</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/kmeans-clustering" jotid="wuid:gx:771d9a354ad0bb29" class="sites-navigation-link">k-means Clustering</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/hierarchical-clustering" jotid="wuid:gx:44331012f4ec5ac" class="sites-navigation-link">Hierarchical Clustering</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/outlier-detection" jotid="wuid:gx:4273d5c7835f2b09" class="sites-navigation-link">Outlier Detection</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/time-series-forecasting" jotid="wuid:gx:7fec9e842e15a02f" class="sites-navigation-link">Time Series Forecasting</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/time-series-analysis" jotid="wuid:gx:2e9a7a9298227024" class="sites-navigation-link">Time Series Analysis</a></div></li><li class=""><div class="current-bg" jotid="wuid:gx:49ed0d6348530808" dir="ltr" style="padding-left: 38px;">Time Series Clustering and Classification</div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/association-rules" jotid="wuid:gx:14bff90b695b4024" class="sites-navigation-link">Association Rules</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/text-mining" jotid="wuid:gx:796ccf9f8f0144b" class="sites-navigation-link">Text Mining</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/twitter-follower-map" jotid="wuid:gx:6a111fc084b7e407" class="sites-navigation-link">Twitter Follower Map</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/social-network-analysis" jotid="wuid:gx:37862c334ba1a867" class="sites-navigation-link">Social Network Analysis</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/multidimensional-scaling" jotid="wuid:gx:7a5bb45c3945d5d8" class="sites-navigation-link">Multidimensional Scaling (MDS)</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/pca" jotid="wuid:gx:77cbbea02ae0e5ee" class="sites-navigation-link">Principal Component Analysis (PCA)</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/parallel-computing" jotid="wuid:gx:3226f8c271c94c08" class="sites-navigation-link">Parallel Computing</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/examples/other" jotid="wuid:gx:308554fb7b902498" class="sites-navigation-link">Other Examples</a></div></li></ul></li><li class="topLevel parent " wuid="gx:37d95cb1b12e8299"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/big-data" jotid="wuid:gx:37d95cb1b12e8299" class="sites-navigation-link topLevel">Big Data</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/big-data/big-data-platforms" jotid="wuid:gx:55e5912dd8e1af44" class="sites-navigation-link">Big Data Platforms</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/big-data/resources" jotid="wuid:gx:1cb5437e88c978ef" class="sites-navigation-link">Big Data Resources</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/big-data/r-hadoop-setup-guide" jotid="wuid:gx:3123de86ef432668" class="sites-navigation-link">Step-by-Step Guide to Setting Up an R-Hadoop System</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/big-data/rhadoop" jotid="wuid:gx:20f94421c66ade76" class="sites-navigation-link">Building an R Hadoop System</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/big-data/hadoop-cluster" jotid="wuid:gx:2b040d91b432daba" class="sites-navigation-link">Hadoop: from Single-Node Mode to Cluster Mode</a></div></li></ul></li><li class="topLevel parent " wuid="gx:487e21c3accea301"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/resources" jotid="wuid:gx:487e21c3accea301" class="sites-navigation-link topLevel">Resources</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/resources/onlinedocs" jotid="wuid:gx:1819c7d4ccd71106" class="sites-navigation-link">Online Documents, Books and Tutorials</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/resources/courses" jotid="wuid:gx:5e8948e5e6235cf6" class="sites-navigation-link">Free Online Courses</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/resources/data-mining-tutorials" jotid="wuid:gx:1e4e083326140792" class="sites-navigation-link">Data Mining Tutorials</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/resources/data" jotid="wuid:gx:4a498d651a50f5f9" class="sites-navigation-link">Free Datasets</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/resources/tools" jotid="wuid:gx:9fcf1cd9671d83d" class="sites-navigation-link">Free Data Mining Tools</a></div></li></ul></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/data" jotid="wuid:gx:5698c44acc68389" class="sites-navigation-link topLevel">Datasets</a></div></li><li class="topLevel parent " wuid="gx:590c8909c1d29ceb"><div dir="ltr" style="padding-left: 0px;"><div class="expander"></div><a href="http://www.rdatamining.com/books" jotid="wuid:gx:590c8909c1d29ceb" class="sites-navigation-link topLevel">Books</a></div><ul role="navigation" class="has-expander"><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/books/rdm" jotid="wuid:gx:77e53d9609599e6c" class="sites-navigation-link">R and Data Mining: Examples and Case Studies</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/books/dmar" jotid="wuid:gx:47847d989a04c0f3" class="sites-navigation-link">Data Mining Applications with R</a></div></li><li class=""><div dir="ltr" style="padding-left: 38px;"><a href="http://www.rdatamining.com/books/pmar" jotid="wuid:gx:4932705cdc82437a" class="sites-navigation-link">Post-Mining of Association Rules</a></div></li></ul></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/r" jotid="wuid:gx:37f58994a4b45430" class="sites-navigation-link topLevel">What is R</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/donate" jotid="wuid:gx:3f58023c30b2e6e2" class="sites-navigation-link topLevel">Donation &amp; Supporters</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/advertise" jotid="wuid:gx:7fd964862b46af3c" class="sites-navigation-link topLevel">Sponsorship and Advertisement</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/sponsors" jotid="wuid:gx:35133f1aae6977af" class="sites-navigation-link topLevel">Sponsors</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/about" jotid="wuid:gx:c8f0cd85c0f0adb" class="sites-navigation-link topLevel">About RDataMining</a></div></li><li class="topLevel "><div dir="ltr" style="padding-left: 19px;"><a href="http://www.rdatamining.com/license" jotid="wuid:gx:49ff04a369b963fe" class="sites-navigation-link topLevel">License</a></div></li></ul></div></div>
+</td>
+<td id="sites-canvas-wrapper">
+<div id="sites-canvas" role="main">
+<div id="goog-ws-editor-toolbar-container"> </div>
+<div xmlns="http://www.w3.org/1999/xhtml" id="title-crumbs" style="">
+<a href="http://www.rdatamining.com/examples" dir="ltr">Examples</a>‎ &gt; ‎
+  </div>
+<h3 xmlns="http://www.w3.org/1999/xhtml" id="sites-page-title-header" style="" align="left">
+<span id="sites-page-title" dir="ltr" tabindex="-1" style="outline: none">Time Series Clustering and Classification</span>
+</h3>
+<div id="sites-canvas-main" class="sites-canvas-main">
+<div id="sites-canvas-main-content">
+<div xmlns="http://www.w3.org/1999/xhtml" class="sites-layout-name-right-sidebar-hf sites-layout-vbox"><div class="sites-layout-tile sites-tile-name-header"><div dir="ltr"><div class="sites-embed-align-left-wrapping-off"><div class="sites-embed-border-on sites-embed" style="width:728px;"><div class="sites-embed-content sites-embed-type-ggs-gadget"><iframe title="myad" width="728" height="90" scrolling="no" frameborder="0" id="1003469868" name="1003469868" allowtransparency="true" class="igm" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ifr.html" hidden="" style="display: none !important;"></iframe></div></div></div></div></div><table cellspacing="0" class="sites-layout-hbox"><tbody><tr><td class="sites-layout-tile sites-tile-name-content-1"><div dir="ltr">This page shows R code examples on time series clustering and classification with R.<br>
+<h3><a name="TOC-Time-Series-Clustering"></a>Time Series Clustering</h3>
+<p>Time series clustering is to partition time series 
+data into groups based on similarity or distance, so that time series in
+ the same cluster are similar. For time series clustering with R, the 
+first step is to work out an appropriate distance/similarity metric, and
+ then, at the second step, use existing clustering techniques, such as 
+k-means, hierarchical clustering, density-based clustering or subspace 
+clustering, to find clustering structures.</p>
+<p>Dynamic Time Warping (DTW) finds optimal alignment 
+between two time series, and DTW distance is used as a distance metric 
+in the example below. <br>
+</p>
+<p>A data set of Synthetic Control Chart Time Series 
+is used here, which contains 600 examples of control charts. 
+Each control chart is a time series with 60 values. There are six 
+classes: 1) 1-100 Normal, 2) 101-200 Cyclic, 3) 201-300 Increasing 
+trend, 4)301-400 Decreasing trend, 5) 401-500 Upward shift, and 6) 
+501-600 Downward shift. The dataset is downloadable at <a href="http://kdd.ics.uci.edu/databases/synthetic_control/synthetic_control.html" target="_blank">UCI KDD Archive</a>.</p>
+<div class="sites-codeblock sites-codesnippet-block">
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; sc &lt;- read.table(“E:/Rtmp/synthetic_control.data”, header=F, sep=”")</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># randomly sampled n cases from each class, to make it easy for plotting</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; n &lt;- 10</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; s &lt;- sample(1:100, n)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; idx &lt;- c(s, 100+s, 200+s, 300+s, 400+s, 500+s)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; sample2 &lt;- sc[idx,]</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; observedLabels &lt;- c(rep(1,n), rep(2,n), rep(3,n), rep(4,n), rep(5,n), rep(6,n))</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># compute DTW distances</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; library(dtw)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; distMatrix &lt;- dist(sample2, method=”DTW”)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># hierarchical clustering</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; hc &lt;- hclust(distMatrix, method=”average”)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; plot(hc, labels=observedLabels, main=”")</code></span></p>
+</div>
+<div style="display:block;text-align:left"><a href="http://www.rdatamining.com/examples/time-series-clustering-classification/ts-clustering.png?attredirects=0" imageanchor="1"><img border="0" height="400" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ts-clustering.png" width="400"></a></div>
+<br>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier">&nbsp;</span></p>
+<h3><a name="TOC-Time-Series-Classification"></a>Time Series Classification</h3>
+<p>Time series classification is to build a 
+classification model based on labelled time series and then use the 
+model to predict the label of unlabelled time series. The way for time 
+series classification with R is to extract and build features from time 
+series data first, and then apply existing classification techniques, 
+such as SVM, k-NN, neural networks, regression and decision trees, to 
+the feature set.</p>
+<p>Discrete Wavelet Transform (DWT) provides a 
+multi-resolution representation using wavelets and is used in the 
+example below. Another popular feature extraction technique is Discrete 
+Fourier Transform (DFT).</p>
+<div class="sites-codeblock sites-codesnippet-block">
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># extracting DWT coefficients (with Haar filter)</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; library(wavelets)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; wtData &lt;- NULL</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; for (i in 1:nrow(sc)) {</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+&nbsp; a &lt;- t(sc[i,])</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+&nbsp; wt &lt;- dwt(a, filter=”haar”, boundary=”periodic”)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+&nbsp; wtData &lt;- rbind(wtData, unlist(c(wt@W,wt@V[[wt@level]])))</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+ }</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; wtData &lt;- as.data.frame(wtData)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&nbsp;</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># set class labels into categorical values</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; classId &lt;- c(rep(“1″,100), rep(“2″,100), rep(“3″,100),</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+&nbsp; rep(“4″,100), rep(“5″,100), rep(“6″,100))</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; wtSc &lt;- data.frame(cbind(classId, wtData))</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&nbsp;</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># build a decision tree with ctree() in package party</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; library(party)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; ct &lt;- ctree(classId ~ ., data=wtSc,</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>+&nbsp; controls = ctree_control(minsplit=30, minbucket=10, maxdepth=5))</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; pClassId &lt;- predict(ct)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&nbsp;</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># check predicted classes against original class labels</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; table(classId, pClassId)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><img border="0" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ts-corsstable.jpg"><span style="font-size:10pt;font-family:Courier"><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </code><br>
+</span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><i><span style="font-size:10pt;font-family:Courier"><code># accuracy</code></span></i></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; (sum(classId==pClassId)) / nrow(wtSc)</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>[1] 0.8716667</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&nbsp;</code></span></p>
+<p style="margin-bottom:.0001pt;line-height:normal"><span style="font-size:10pt;font-family:Courier"><code>&gt; plot(ct, ip_args=list(pval=FALSE), ep_args=list(digits=0))</code></span></p>
+</div>
+<div style="display:block;text-align:left"><a href="http://www.rdatamining.com/examples/time-series-clustering-classification/ts-tree.png?attredirects=0" imageanchor="1"><img border="0" height="354" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ts-tree.png" width="800"></a></div>
+<br>
+More examples on time series analysis and mining with R and other data mining techniques can be found in my book "<a href="http://www.rdatamining.com/docs">R and Data Mining: Examples and Case Studies</a>", which is downloadable as a .PDF file at the link.<br></div></td><td class="sites-layout-tile sites-tile-name-content-2 sites-canvas-sidebar"><div dir="ltr"><div class="sites-embed-align-left-wrapping-off"><div class="sites-embed-border-off sites-embed" style="width:160px;"><div class="sites-embed-content sites-embed-type-adsense"><script type="text/javascript">
+<!--
+google_ad_client="pub-5028529536813706";
+google_ad_host="pub-6693688277674466";
+google_ad_width=160;
+google_ad_height=600;
+google_ad_format="160x600_as";
+google_ad_type="text";
+google_color_border="D7D7D7";
+google_color_bg="FFFFFF";
+google_color_link="000000";
+google_color_url="0066CC";
+google_color_text="000000";
+//-->
+</script><script type="text/javascript" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/f.txt">
+</script></div></div></div></div></td></tr></tbody></table><div class="sites-layout-tile sites-tile-name-footer"><div dir="ltr"><div class="sites-embed-align-left-wrapping-off"><div class="sites-embed-border-on sites-embed" style="width:728px;"><div class="sites-embed-content sites-embed-type-ggs-gadget"><iframe title="myad" width="728" height="90" scrolling="no" frameborder="0" id="1024197108" name="1024197108" allowtransparency="true" class="igm" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/ifr(1).html" hidden="" style="display: none !important;"></iframe></div></div></div></div></div></div>
+</div> 
+</div> 
+<div id="sites-canvas-bottom-panel">
+<div xmlns="http://www.w3.org/1999/xhtml" id="COMP_page-subpages"> </div>
+<div id="sites-attachments-container">
+</div>
+</div>
+</div> 
+</td> 
+</tr>
+</tbody></table> 
+</div> 
+</div> 
+<div id="sites-chrome-footer-wrapper">
+<div id="sites-chrome-footer-wrapper-inside">
+<div id="sites-chrome-footer">
+<div xmlns="http://www.w3.org/1999/xhtml" class="sites-subfooter"><div class="sites-subfooter-content"><div dir="ltr"><p style="TEXT-ALIGN:center"><span>©2011-2020 Yanchang Zhao. &nbsp;</span><span> </span><span>&nbsp;&nbsp; &nbsp;</span>Contact: yanchang(at)rdatamining.com</p></div></div></div>
+</div>
+</div>
+</div>
+</div> 
+</div> 
+<div id="sites-chrome-adminfooter-container">
+<div xmlns="http://www.w3.org/1999/xhtml" class="sites-adminfooter" role="navigation"><p><a class="sites-system-link" href="https://accounts.google.com/ServiceLogin?continue=http://sites.google.com/a/rdatamining.com/www/examples/time-series-clustering-classification&amp;service=jotspot">Sign in</a><span aria-hidden="true">|</span><a class="sites-system-link" href="http://sites.google.com/a/rdatamining.com/www/system/app/pages/reportAbuse" target="_blank">Report Abuse</a><span aria-hidden="true">|</span><span class="sites-system-link">Powered By</span> <b class="powered-by"><a href="http://sites.google.com/site">Google Sites</a></b></p></div>
+</div>
+</div> 
+</div> 
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+    window.jstiming.load.tick('sjl');
+  </script>
+<script xmlns="http://www.w3.org/1999/xhtml" src="./Time Series Clustering and Classification - RDataMining.com_ R and Data Mining_files/jot_min_view__en.js.download"></script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+    window.jstiming.load.tick('jl');
+  </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+                    sites.Searchbox.initialize(
+                        'sites-searchbox-select-button',
+                        {"object":[{"action":"/system/app/pages/search","id":"search-site","label":"Search this site"},{"action":"/system/app/pages/customSearch","id":"search-web","label":"Search web"}]}['object'],
+                        'search-site',
+                        {"label":"Configure search options...","url":"/system/app/pages/admin/settings"});
+                  </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+      gsites.HoverPopupMenu.createSiteDropdownMenus('sites-header-nav-dropdown', false);
+    </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript" defer="true">
+            JOT_setupNav("2bd", "Navigation", false);
+            JOT_addListener('titleChange', 'JOT_NAVIGATION_titleChange', 'COMP_2bd');
+          </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+  setTimeout(function() {
+    var fingerprint = gsites.date.TimeZone.getFingerprint([1109635200000, 1128902400000, 1130657000000, 1143333000000, 1143806400000, 1145000000000, 1146380000000, 1152489600000, 1159800000000, 1159500000000, 1162095000000, 1162075000000, 1162105500000]);
+    gsites.Xhr.send('http://www.rdatamining.com/_/tz', null, null, 'GET', null, null, { afjstz: fingerprint });
+  }, 500);
+</script>
+<script xmlns="http://www.w3.org/1999/xhtml">
+                    window.onload = function() {
+                      if (false) {
+                        JOT_setMobilePreview();
+                      }
+                      var loadTimer = window.jstiming.load;
+                      loadTimer.tick("ol");
+                      loadTimer["name"] = "load," + webspace.page.type + ",user_page";
+                      window.jstiming.report(loadTimer, {}, 'http://csi.gstatic.com/csi');
+                    }
+                  </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+        JOT_insertAnalyticsCode(false,
+            false);
+      </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+    var maestroRunner = new gsites.pages.view.SitesMaestroRunner(
+        webspace, "en");
+    maestroRunner.initListeners();
+    maestroRunner.installEditRender();
+  </script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript" defer="true">
+  //<![CDATA[
+    // Decorate any fastUI buttons on the page with a class of 'goog-button'.
+    if (webspace.user.hasWriteAccess) {
+      JOT_decorateButtons();
+    }
+
+    // Fires delayed events.
+    (function() {
+      JOT_fullyLoaded = true;
+      var delayedEvents = JOT_delayedEvents;
+      for (var x = 0; x < delayedEvents.length; x++) {
+        var event = delayedEvents[x];
+        JOT_postEvent(event.eventName, event.eventSrc, event.payload);
+      }
+      JOT_delayedEvents = null;
+      JOT_postEvent('pageLoaded');
+    })();
+  //]]>
+</script>
+<script xmlns="http://www.w3.org/1999/xhtml" type="text/javascript">
+    JOT_postEvent('decorateGvizCharts');
+  </script>
+<script type="text/javascript">
+          JOT_setupPostRenderingManager();
+        </script>
+<script type="text/javascript">
+          JOT_postEvent('renderPlus', null, 'sites-chrome-main');
+        </script>
+<script type="text/javascript">
+          sites.codeembed.init();
+        </script>
+<div id="server-timer-div" style="display:none"> </div>
+<script type="text/javascript">
+          window.jstiming.load.tick('render');
+          JOT_postEvent('usercontentrendered', this);
+        </script>
+
+
+</body></html>
