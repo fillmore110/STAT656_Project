@@ -13,6 +13,8 @@ require(quantmod)
 require(tidyverse)
 require(tidyquant)
 require(dwt)
+require(dtwclust)
+require(stochvol)
 
 rm(list=ls())
 ```
@@ -20,15 +22,41 @@ rm(list=ls())
 
 First we must get our data. We will look at the logarithmic returns for stocks in the S&P400 over the two year period ranging from January 1, 2019 to December 31, 2020.
 
-```{r import_data, cache=TRUE}
-returns <- tq_index('SP600') %>%
-  tq_get(from='2019-01-01', to='2020-12-31', verbose=T) %>%
-  group_by(symbol) %>%
-  tq_transmute(select=adjusted, mutate_fun=periodReturn, period='daily', type='log', col_rename='log_daily_returns') %>%
-  pivot_wider(names_from=date, values_from=log_daily_returns) %>%
-  ungroup %>%
-  drop_na
+```{r import_data}
+
+if (file.exists("SP500-3year.RData")) {
+  load("SP500-3year.RData")
+} else {
+  returns <- tq_index('SP500') %>%
+    tq_get(from='2018-01-01', to='2020-12-31', verbose=T) %>%
+    group_by(symbol) %>%
+    tq_transmute(select=adjusted, mutate_fun=periodReturn, period='daily', type='log', col_rename='log_daily_returns') %>%
+    ungroup %>%
+    pivot_wider(names_from=date, values_from=log_daily_returns) %>%
+    drop_na
+  save(returns,file="SP500-3year.RData")
+}
 ```
+
+```{r find_volatilitity}
+get_volatility <- function(arr){
+  result <- svsample(arr)
+  return(result$summary$sd[,1])
+}
+
+
+if (file.exists("SP500-3year-vol.RData")) {
+  load("SP500-3year-vol.RData")
+} else {
+  returns_vol <- returns %>%
+    pivot_longer(cols=!symbol) %>%
+    pivot_wider(names_from = symbol, values_from = value) %>%
+    select(where(is.numeric)) %>%
+    mutate_all(get_volatility)
+  save(returns_vol,file="SP500-3year-vol.RData")
+}
+```
+
 #Principle Components
 
 Now we look at the Principle Components. This should give us a look at whether or not there are obvious groupings in the data.
@@ -44,63 +72,52 @@ Much of the variance is explained in the first principle component, but the drop
 returns_PC_df <- data.frame(returns_PC$x)
 ggplot(data=returns_PC_df, aes(x=PC1, y=PC2)) + 
   geom_point() +
-  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC2))
+  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC1))
 ```
 
 There does not appear to be any clear separations between our stocks when projected into two dimensions.
 
 #Clustering
 
-Try hierarchical clustering with several different clustering methods.
-
-First we compute a distance matrix.
-```{r distance}
-delta <- dist(returns %>% select(where(is.numeric)), method='DTW')
+```{r}
+k=11
+clusters = tsclust(returns %>% select(where(is.numeric)), k=k, distance="dtw_basic")
+plot(clusters)
 ```
 
-Try the Complete Linkage
-```{r complete_linkage}
-clust_complete <- hclust(delta, method='complete')
-plot(clust_complete)
-rect.hclust(clust_complete, k=5)
-```
 
-Try The Single Linkage
-```{r single_linkage}
-clust_single <- hclust(delta, method='single')
-plot(clust_single)
-rect.hclust(clust_single, k=5)
-```
 
-Try the Average Linkage
-```{r average_linkage}
-clust_average <- hclust(delta, method='average')
-plot(clust_average)
-rect.hclust(clust_average, k=5)
-```
-Try the Centroid Linkage
-```{r single}
-clust_centroid <- hclust(delta, method='centroid')
-plot(clust_centroid)
-rect.hclust(clust_centroid, k=5)
-```
-
-Try with 2 clusters
-
-```{r clust}
-clusters <- cutree(clust_complete, k=8)
-ggplot(data=returns_PC_df, aes(x=PC1, y=PC2, color=as.factor(clusters))) + 
+```{r}
+ggplot(data=returns_PC_df, aes(x=PC1, y=PC2, color=clusters@cluster)) + 
   geom_point() +
-  scale_color_brewer(palette = "Accent") +
-  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC2))
+  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC1))
 ```
 
-#Kmeans
-
-```{r clust}
-clusters <- kmedoids(delta, 3)
-ggplot(data=returns_PC_df, aes(x=PC1, y=PC2, color=as.factor(clusters))) + 
+```{r}
+kmeans.out = kmeans(clusters@distmat, centers=k)
+ggplot(data=returns_PC_df, aes(x=PC1, y=PC2, color=as.vector(kmeans.out$cluster))) + 
   geom_point() +
-  scale_color_brewer(palette = "Accent") +
-  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC2))
+  coord_cartesian(xlim=range(returns_PC_df$PC1), ylim=range(returns_PC_df$PC1))
 ```
+
+```{r}
+heatmap(clusters@distmat, Colv=NA, Rowv=NA, scale="row")
+```
+
+```{r PCA_vol}
+vol_PC <- prcomp(returns_vol %>% as.data.frame %>% t, scale=F, center=T)
+screeplot(returns_PC)
+```
+
+```{r PCA_vol_plot}
+vol_PC_df <- data.frame(vol_PC$x)
+ggplot(data=vol_PC_df, aes(x=PC1, y=PC2)) + 
+  geom_point() +
+  coord_cartesian(xlim=range(vol_PC_df$PC1), ylim=range(vol_PC_df$PC1))
+```
+
+```{r}
+vol_clusters = tsclust(returns_vol %>% as.data.frame %>% t, k=k, distance="dtw_basic")
+plot(vol_clusters)
+```
+
