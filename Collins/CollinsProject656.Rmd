@@ -32,7 +32,7 @@ Tested with smaller dataset first (DOW) which contained 30 stocks. Then will app
   stockIndex$symbolFixed = gsub("\\.", "-",stockIndex$symbol)
 ```
 
-This part runs great with a small set, but once I try to run SP500 it bogs down my computer. Will try to get parallization after I set up DTW. Test with 1 year worth of data.
+This part runs great with a small set, but once I try to run SP500 it bogs down my computer. Test with 1 year worth of data.
 ``` {r import quantitative data}
 #Get Quantitative Data
   startDate = "2019-01-01"
@@ -52,17 +52,28 @@ stockPrices <- stockPrices %>%   group_by(symbol) %>%
 dailyLogReturn <- stockPrices %>% select(symbol,date, daily.returns) %>% spread(date,daily.returns) %>% drop_na()
 ```
 
-
 #Finding the  distance
-```{r }
+```{r DTW Distance}
 distMatrix <- dist(dailyLogReturn[-1], method="DTW")
 
 ```
 
-
 #Hierarchical Clustering
-```{r }
-hc <- hclust(distMatrix, method="average")
-
-plot(hc, labels=dailyLogReturn$symbol, main="")
+```{r average linkage}
+hcAverage <- hclust(distMatrix, method="average")
+plot(hc, labels=dailyLogReturn$symbol, main="Average Cluster Dendogram")
 ```
+```{r centroid linkage}
+hcCentroid <- hclust(distMatrix, method="centroid")
+plot(hcCentroid, labels=dailyLogReturn$symbol, main="Centroid Cluster Dendogram")
+```
+```{r complete linkage}
+hcComplete <- hclust(distMatrix, method="complete")
+plot(hcComplete, labels=dailyLogReturn$symbol, main="Complete Cluster Dendogram")
+```
+```{r single linkage}
+hcSingle <- hclust(distMatrix, method="single")
+plot(hcSingle, labels=dailyLogReturn$symbol, main="Single Cluster Dendogram")
+```
+
+#K-Means Clustering
