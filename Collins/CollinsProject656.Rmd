@@ -2,33 +2,78 @@
 title: "STAT 656: Project "
 subtitle: "Unsupervised Time Series Clustering of S&P 500 Price, Volatility, and Financials"
 author: "Rebeca Collins"
-date: "3/7/2021"
-output: html_document
+date: "3/27/2021"
+output:  pdf_document
 ---
 
-```{r setup, include=FALSE,message=FALSE, warning=FALSE}
+```{r setup}
+#, include=FALSE,message=FALSE, warning=FALSE}
+
+#require(caret)
+#require(quantmod)
+
 require(dplyr)
-require(caret)
-require(quantmod)
 require(tidyverse)
 require(tidyquant)
-
+require(ggplot2)
+require(reshape2)
+require(dtw)
+require(dtwclust)
 rm(list=ls())
 ```
 
+#Pull in Stock Data
+Tested with smaller dataset first (DOW) which contained 30 stocks. Then will apply the model to SP500.
+```{r get Stock Indices}
+#Get Stock Index
+  stockIndex = tq_index("DOW") #SP500 #DOW
 
+#Fix stock symbols
+  stockIndex$symbolFixed = gsub("\\.", "-",stockIndex$symbol)
+```
 
-#Pull in Time Series Objects
-```{r}
+This part runs great with a small set, but once I try to run SP500 it bogs down my computer. Test with 1 year worth of data.
+``` {r import quantitative data}
+#Get Quantitative Data
+  startDate = "2019-01-01"
+  endDate = "2019-12-31"
+  #complete_cases = TRUE - removes symbols that return an NA 
+  stockPrices = tq_get(stockIndex$symbolFixed, get = "stock.prices", from = startDate, to =endDate, complete_cases = TRUE )
+
+save(stockPrices, file="StockData.Rdata")
+```
+
+#Transforming the Raw Prices into Log-Returns
+```{r log returns}
+stockPrices <- stockPrices %>%   group_by(symbol) %>%
+              tq_mutate(select = close, mutate_fun = periodReturn,
+              period = "daily", type = "log")
+
+dailyLogReturn <- stockPrices %>% select(symbol,date, daily.returns) %>% spread(date,daily.returns) %>% drop_na()
+```
+
+#Finding the  distance
+```{r DTW Distance}
+distMatrix <- dist(dailyLogReturn[-1], method="DTW")
 
 ```
 
-#Finding Dissimilarity Measures
-```{r}
-
+#Hierarchical Clustering
+```{r average linkage}
+hcAverage <- hclust(distMatrix, method="average")
+plot(hc, labels=dailyLogReturn$symbol, main="Average Cluster Dendogram")
+```
+```{r centroid linkage}
+hcCentroid <- hclust(distMatrix, method="centroid")
+plot(hcCentroid, labels=dailyLogReturn$symbol, main="Centroid Cluster Dendogram")
+```
+```{r complete linkage}
+hcComplete <- hclust(distMatrix, method="complete")
+plot(hcComplete, labels=dailyLogReturn$symbol, main="Complete Cluster Dendogram")
+```
+```{r single linkage}
+hcSingle <- hclust(distMatrix, method="single")
+plot(hcSingle, labels=dailyLogReturn$symbol, main="Single Cluster Dendogram")
 ```
 
-#Finding the Clusters
-```{r}
-
-```
+#K-Means Clustering

@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<!-- saved from url=(0075)https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html -->
+<html lang="en" class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	
+	<!-- Google Analytics -->
+	<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/sdk.js.download" async="" crossorigin="anonymous"></script><script id="facebook-jssdk" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/sdk.js(2).download"></script><script async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/0ed5b9d38b3b34864eed8fe57.js.download"></script><script type="text/javascript" async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/bc626hntfa6s.js.download"></script><script async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/gtm.js.download"></script><script async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/js"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-76139189-2', { 'optimize_id': 'GTM-PRTDMQB'});
+	</script>
+	<!-- End Google Analytics -->
+	
+	<!-- Anti-flicker snippet (recommended)  -->
+	<style>.async-hide { opacity: 0 !important} </style>
+	<script>(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;
+	h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};
+	(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;
+	})(window,document.documentElement,'async-hide','dataLayer',4000,
+	{'GTM-PRTDMQB':true});</script>
+	<!-- End Anti-flicker snippet (recommended)  -->
+	
+	<!-- Google Tag Manager -->
+	<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+	new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+	j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+	'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+	})(window,document,'script','dataLayer','GTM-WSZMXZZ');</script>
+	<!-- End Google Tag Manager -->
+
+
+		
+    <title>Speed Up Your Code Part 2: Parallel Processing Financial Data with multidplyr + tidyquant</title>
+		
+        
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- Pintrest -->
+    <meta name="p:domain_verify" content="44e934c703652710b9cfcbbeb06f2d31">
+
+    <!-- Open Graph -->
+
+    <meta content="Business Science" property="og:site_name">
+    <meta name="author" content="business-science.io">
+
+    
+      <meta content="Speed Up Your Code Part 2: Parallel Processing Financial Data with multidplyr + tidyquant" property="og:title">
+      <meta content="Speed Up Your Code Part 2: Parallel Processing Financial Data with multidplyr + tidyquant" property="twitter:title">
+    
+
+    
+      <meta content="article" property="og:type">
+    
+
+    
+    <meta name="description" content="Since my initial post on parallel processing with multidplyr, there have been some recent changes in the tidy eco-system: namely the package tidyquant, which brings financial analysis to the tidyverse. The tidyquant package drastically increase the amount of tidy financial data we have access to and reduces the amount of code needed to get financial data into the tidy format. The multidplyr package adds parallel processing capability to improve the speed at which analysis can be scaled. I seriously think these two packages were made for each other. I’ll go through the same example used previously, updated with the new tidyquant functionality.
+
+">
+    <meta property="og:description" content="Since my initial post on parallel processing with multidplyr, there have been some recent changes in the tidy eco-system: namely the package tidyquant, which brings financial analysis to the tidyverse. The tidyquant package drastically increase the amount of tidy financial data we have access to and reduces the amount of code needed to get financial data into the tidy format. The multidplyr package adds parallel processing capability to improve the speed at which analysis can be scaled. I seriously think these two packages were made for each other. I’ll go through the same example used previously, updated with the new tidyquant functionality.
+
+">
+    
+
+    
+      <meta content="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html" property="og:url">
+    
+
+    
+      <meta content="2017-01-21T00:00:00-05:00" property="article:published_time">
+      <meta content="https://www.business-science.io/about/" property="article:author">
+    
+
+    
+      <meta content="https://www.business-science.io/assets/multidplyr.png" property="og:image">
+    
+
+    
+      
+      <meta content="Code-Tools" property="article:section">
+      
+    
+
+    
+      
+      <meta content="R-Project" property="article:tag">
+      
+      <meta content="R" property="article:tag">
+      
+      <meta content="Parallel Processing" property="article:tag">
+      
+      <meta content="Multiple Cores" property="article:tag">
+      
+      <meta content="tidyverse" property="article:tag">
+      
+      <meta content="multidplyr" property="article:tag">
+      
+      <meta content="dplyr" property="article:tag">
+      
+      <meta content="tidyquant" property="article:tag">
+      
+      <meta content="parallel" property="article:tag">
+      
+      <meta content="Learn-R" property="article:tag">
+      
+    
+
+<!-- Twitter Card -->
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@site_username">
+  <meta name="twitter:creator" content="@creator_username">
+  
+    <meta name="twitter:title" content="Speed Up Your Code Part 2: Parallel Processing Financial Data with multidplyr + tidyquant">
+  
+  
+    <meta name="twitter:url" content="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html">
+  
+  
+    <meta name="twitter:description" content="Since my initial post on parallel processing with multidplyr, there have been some recent changes in the tidy eco-system: namely the package tidyquant, which brings financial analysis to the tidyverse. The tidyquant package drastically increase the amount of tidy financial data we have access to and reduces the amount of code needed to get financial data into the tidy format. The multidplyr package adds parallel processing capability to improve the speed at which analysis can be scaled. I seriously think these two packages were made for each other. I’ll go through the same example used previously, updated with the new tidyquant functionality.
+
+">
+  
+  
+  
+    <meta name="twitter:image" content="https://www.business-science.io/assets/multidplyr.png">
+   
+  
+
+
+  <meta name="ahrefs-site-verification" content="39784abd74b760b0fef1717d33306c64efeebaebf8d12e008b7e3234cc9cebcb">
+
+
+    <link rel="alternate" type="application/atom+xml" title="business-science.io" href="https://www.business-science.io/atom.xml">
+
+<link rel="alternate" type="application/atom+xml" title="business-science.io" href="https://www.business-science.io/atom.r-bloggers.xml">
+
+<link rel="alternate" type="application/rss+xml" title="business-science.io" href="https://www.business-science.io/feed.xml">
+
+
+
+
+        
+
+    <!-- Start of Async Drift Code -->
+    <script>
+    !function() {
+      var t;
+      if (t = window.driftt = window.drift = window.driftt || [], !t.init) return t.invoked ? void (window.console && console.error && console.error("Drift snippet included twice.")) : (t.invoked = !0,
+      t.methods = [ "identify", "config", "track", "reset", "debug", "show", "ping", "page", "hide", "off", "on" ],
+      t.factory = function(e) {
+        return function() {
+          var n;
+          return n = Array.prototype.slice.call(arguments), n.unshift(e), t.push(n), t;
+        };
+      }, t.methods.forEach(function(e) {
+        t[e] = t.factory(e);
+      }), t.load = function(t) {
+        var e, n, o, i;
+        e = 3e5, i = Math.ceil(new Date() / e) * e, o = document.createElement("script"),
+        o.type = "text/javascript", o.async = !0, o.crossorigin = "anonymous", o.src = "https://js.driftt.com/include/" + i + "/" + t + ".js",
+        n = document.getElementsByTagName("script")[0], n.parentNode.insertBefore(o, n);
+      });
+    }();
+    drift.SNIPPET_VERSION = '0.3.1';
+    drift.load('bc626hntfa6s');
+    </script>
+    <!-- End of Async Drift Code -->
+
+    <!-- Favicon -->
+    <!-- <link rel="icon" type="image/x-icon" href="/img/favicon.ico" /> -->
+    <link rel="apple-touch-icon" sizes="57x57" href="https://www.business-science.io/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://www.business-science.io/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://www.business-science.io/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://www.business-science.io/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://www.business-science.io/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://www.business-science.io/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://www.business-science.io/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://www.business-science.io/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://www.business-science.io/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://www.business-science.io/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://www.business-science.io/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://www.business-science.io/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://www.business-science.io/favicon/favicon-16x16.png">
+    <link rel="manifest" href="https://www.business-science.io/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- Bootstrap Core CSS - Uses Bootswatch Flatly Theme: http://bootswatch.com/flatly/ -->
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/bootstrap-flatly_r4.css" rel="stylesheet">
+
+    <!--Owl Carousel-->
+    <link rel="stylesheet" href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/owl.carousel.min.css">
+    <link rel="stylesheet" href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/owl.theme.default.min.css">
+
+    <!--Animated Modal-->
+    <link rel="stylesheet" href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/animate.min.css">
+
+    <!-- Custom CSS -->
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/freelancer_r3.css" rel="stylesheet">
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/style_r9.min.css" rel="stylesheet">
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/table.min.css" rel="stylesheet">
+
+    <!-- Highlightjs -->
+    <link rel="stylesheet" href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/github.hljs-2.min.css">
+
+    <!-- Custom Fonts -->
+    <!--<link href="/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">-->
+    <link rel="stylesheet" href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/all.css">
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/css" rel="stylesheet" type="text/css">
+    <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/css(1)" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+<style type="text/css">.drift-conductor-item iframe,
+.drift-frame-controller {
+  display: block;
+  min-width: 0;
+  max-width: none;
+  min-height: 0;
+  max-height: none;
+}
+
+.drift-conductor-item iframe {
+  border: none !important;
+  background: transparent !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+}
+
+.drift-conductor-item.with-transition {
+  -webkit-transition: opacity .5s ease, -webkit-transform .5s ease;
+  transition: opacity .5s ease, -webkit-transform .5s ease;
+  -o-transition: opacity .5s ease, -o-transform .5s ease;
+  -moz-transition: opacity .5s ease, transform .5s ease, -moz-transform .5s ease;
+  transition: opacity .5s ease, transform .5s ease;
+  transition: opacity .5s ease, transform .5s ease, -webkit-transform .5s ease, -moz-transform .5s ease, -o-transform .5s ease;
+}
+
+.drift-frame-chat.with-transition.drift-frame-chat__takeover {
+  -webkit-transition: opacity .5s ease;
+  -o-transition: opacity .5s ease;
+  -moz-transition: opacity .5s ease;
+  transition: opacity .5s ease;
+}
+
+.drift-conductor-item.with-height-transition {
+  -webkit-transition: max-height .5s ease, opacity .5s ease, -webkit-transform .5s ease;
+  transition: max-height .5s ease, opacity .5s ease, -webkit-transform .5s ease;
+  -o-transition: max-height .5s ease, opacity .5s ease, -o-transform .5s ease;
+  -moz-transition: max-height .5s ease, opacity .5s ease, transform .5s ease, -moz-transform .5s ease;
+  transition: max-height .5s ease, opacity .5s ease, transform .5s ease;
+  transition: max-height .5s ease, opacity .5s ease, transform .5s ease, -webkit-transform .5s ease, -moz-transform .5s ease, -o-transform .5s ease;
+}
+
+.drift-conductor-item {
+  -webkit-transform: translateZ(0);
+     -moz-transform: translateZ(0);
+          transform: translateZ(0);
+}
+
+.drift-frame-controller-align-left {
+  left: 24px;
+}
+
+.drift-frame-controller-align-right {
+  right: 24px;
+}
+
+.drift-frame-chat:not(iframe) {
+  bottom: -webkit-calc(12px + 52px + 24px);
+  bottom: -moz-calc(12px + 52px + 24px);
+  bottom: calc(12px + 52px + 24px); /* vertical margin x 2 + widget icon size*/
+  width: 100%;
+  height: 100%;
+  min-width: 320px;
+  opacity: 0;
+  visibility: hidden;
+
+  -webkit-transform: translateY(88px);
+
+     -moz-transform: translateY(88px);
+
+      -ms-transform: translateY(88px);
+
+       -o-transform: translateY(88px);
+
+          transform: translateY(88px);
+}
+
+.drift-frame-chat:not(iframe).drift-chat-open {
+  opacity: 1;
+  visibility: visible;
+  -webkit-transform: translateY(0px);
+     -moz-transform: translateY(0px);
+      -ms-transform: translateY(0px);
+       -o-transform: translateY(0px);
+          transform: translateY(0px);
+}
+
+.drift-frame-chat.drift-frame-chat__takeover:not(iframe):not(.drift-frame--mobile) {
+  min-width: 600px;
+}
+
+.drift-frame-chat-align-left {
+  left: 12px;
+}
+
+.drift-frame-chat-align-right {
+  right: 12px;
+}
+
+.drift-frame-takeover,
+.drift-frame-landingPage,
+.drift-frame-chat__takeover {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.drift-frame-chat__takeover.hide-frame {
+  visibility: hidden;
+}
+
+.drift-frame-emailCapture {
+  bottom: 0;
+  height: -webkit-calc(100% + 30px);
+  height: -moz-calc(100% + 30px);
+  height: calc(100% + 30px);
+}
+
+.drift-frame-emailCapture-align-left {
+  left: 0;
+}
+
+.drift-frame-emailCapture-align-right {
+  right: 0;
+}
+
+.drift-frame-slider {
+  bottom: 18px;
+  height: -webkit-calc(100% + 20px);
+  height: -moz-calc(100% + 20px);
+  height: calc(100% + 20px);
+}
+
+.drift-frame-slider-align-left {
+  left: 96px;
+}
+
+.drift-frame-slider-align-right {
+  right: 96px;
+}
+
+.drift-frame--mobile.drift-frame-slider-align-left {
+  left: 68px;
+}
+
+.drift-frame--mobile.drift-frame-slider-align-right {
+  right: 68px;
+}
+
+.drift-widget-content-box {
+  background: rgba(0,0,0,.5);
+  width: 100%;
+  height: 100%;
+
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+}
+
+.drift-widget-content-box > * {
+  margin: 0 auto;
+  position: relative;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+     -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+       -o-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  max-height: 80%;
+
+}
+
+@media
+(max-height: 685px),
+(min-width: 369px) and (max-width: 380px),
+(max-width: 367px),
+
+(min-device-width: 320px)
+and (max-device-width: 480px)
+and (-webkit-min-device-pixel-ratio: 2)
+and (orientation: portrait)
+
+{
+  .drift-frame--mobile.drift-frame-chat.drift-chat-open {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 2147483647 !important;
+  }
+
+  .drift-frame--mobile.drift-frame-controller {
+    bottom: 0;
+  }
+
+  .drift-frame--mobile.drift-frame-controller.drift-frame-controller-align-left {
+    left: 0;
+  }
+
+  .drift-frame--mobile.drift-frame-controller.drift-frame-controller-align-right {
+    right: 0;
+  }
+
+
+  .drift-frame--mobile.drift-frame-controller.drift-chat-open {
+    display: none;
+  }
+
+  .drift-frame--mobile.drift-frame-slider {
+    bottom: 0;
+    max-width: 320px;
+  }
+
+  .drift-frame--mobile iframe.drift-frame-chat {
+    width: 1px !important;
+    min-width: 100%;
+
+    height: 1px !important;
+    min-height: 100%;
+  }
+
+  html.drift-widget-parent--chat-open,
+  html.drift-widget-parent--chat-open > body {
+    overflow: hidden !important;
+    position: static !important;
+  }
+}
+</style><script type="text/javascript" async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/embed.js.download"></script><script charset="utf-8" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/moment_timeline_tweet.bd459ee688d39ebbbe0e6b166a1d2cb9.js.download"></script><script charset="utf-8" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/timeline.4d8f2209bfca17ad1826ab582cf6da09.js.download"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><link rel="prefetch" as="style" href="https://c.disquscdn.com/next/embed/styles/lounge.c82b267b396dfbc10ae5113342115da8.css"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/embed/common.bundle.f485ba8b89bf2153fdb9f493ec342aed.js"><link rel="prefetch" as="script" href="https://c.disquscdn.com/next/embed/lounge.bundle.5c8cd56736a07a84352a4d37a862a762.js"><link rel="prefetch" as="script" href="https://disqus.com/next/config.js"><style type="text/css">
+:root .adsbox
+{ display: none !important; }
+:root *[nuzciwk][hidden] { display: none !important; }</style><style type="text/css" data-fbcssmodules="css:fb.css.basecss:fb.css.dialog css:fb.css.iframewidget">.fb_hidden{position:absolute;top:-10000px;z-index:10001}.fb_reposition{overflow:hidden;position:relative}.fb_invisible{display:none}.fb_reset{background:none;border:0;border-spacing:0;color:#000;cursor:auto;direction:ltr;font-family:"lucida grande", tahoma, verdana, arial, sans-serif;font-size:11px;font-style:normal;font-variant:normal;font-weight:normal;letter-spacing:normal;line-height:1;margin:0;overflow:visible;padding:0;text-align:left;text-decoration:none;text-indent:0;text-shadow:none;text-transform:none;visibility:visible;white-space:normal;word-spacing:normal}.fb_reset>div{overflow:hidden}@keyframes fb_transform{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}.fb_animate{animation:fb_transform .3s forwards}
+.fb_dialog{background:rgba(82, 82, 82, .7);position:absolute;top:-10000px;z-index:10001}.fb_dialog_advanced{border-radius:8px;padding:10px}.fb_dialog_content{background:#fff;color:#373737}.fb_dialog_close_icon{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 0 transparent;cursor:pointer;display:block;height:15px;position:absolute;right:18px;top:17px;width:15px}.fb_dialog_mobile .fb_dialog_close_icon{left:5px;right:auto;top:5px}.fb_dialog_padding{background-color:transparent;position:absolute;width:1px;z-index:-1}.fb_dialog_close_icon:hover{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -15px transparent}.fb_dialog_close_icon:active{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/IE9JII6Z1Ys.png) no-repeat scroll 0 -30px transparent}.fb_dialog_iframe{line-height:0}.fb_dialog_content .dialog_title{background:#6d84b4;border:1px solid #365899;color:#fff;font-size:14px;font-weight:bold;margin:0}.fb_dialog_content .dialog_title>span{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/yd/r/Cou7n-nqK52.gif) no-repeat 5px 50%;float:left;padding:5px 0 7px 26px}body.fb_hidden{height:100%;left:0;margin:0;overflow:visible;position:absolute;top:-10000px;transform:none;width:100%}.fb_dialog.fb_dialog_mobile.loading{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/ya/r/3rhSv5V8j3o.gif) white no-repeat 50% 50%;min-height:100%;min-width:100%;overflow:hidden;position:absolute;top:0;z-index:10001}.fb_dialog.fb_dialog_mobile.loading.centered{background:none;height:auto;min-height:initial;min-width:initial;width:auto}.fb_dialog.fb_dialog_mobile.loading.centered #fb_dialog_loader_spinner{width:100%}.fb_dialog.fb_dialog_mobile.loading.centered .fb_dialog_content{background:none}.loading.centered #fb_dialog_loader_close{clear:both;color:#fff;display:block;font-size:18px;padding-top:20px}#fb-root #fb_dialog_ipad_overlay{background:rgba(0, 0, 0, .4);bottom:0;left:0;min-height:100%;position:absolute;right:0;top:0;width:100%;z-index:10000}#fb-root #fb_dialog_ipad_overlay.hidden{display:none}.fb_dialog.fb_dialog_mobile.loading iframe{visibility:hidden}.fb_dialog_mobile .fb_dialog_iframe{position:sticky;top:0}.fb_dialog_content .dialog_header{background:linear-gradient(from(#738aba), to(#2c4987));border-bottom:1px solid;border-color:#043b87;box-shadow:white 0 1px 1px -1px inset;color:#fff;font:bold 14px Helvetica, sans-serif;text-overflow:ellipsis;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0;vertical-align:middle;white-space:nowrap}.fb_dialog_content .dialog_header table{height:43px;width:100%}.fb_dialog_content .dialog_header td.header_left{font-size:12px;padding-left:5px;vertical-align:middle;width:60px}.fb_dialog_content .dialog_header td.header_right{font-size:12px;padding-right:5px;vertical-align:middle;width:60px}.fb_dialog_content .touchable_button{background:linear-gradient(from(#4267B2), to(#2a4887));background-clip:padding-box;border:1px solid #29487d;border-radius:3px;display:inline-block;line-height:18px;margin-top:3px;max-width:85px;padding:4px 12px;position:relative}.fb_dialog_content .dialog_header .touchable_button input{background:none;border:none;color:#fff;font:bold 12px Helvetica, sans-serif;margin:2px -12px;padding:2px 6px 3px 6px;text-shadow:rgba(0, 30, 84, .296875) 0 -1px 0}.fb_dialog_content .dialog_header .header_center{color:#fff;font-size:16px;font-weight:bold;line-height:18px;text-align:center;vertical-align:middle}.fb_dialog_content .dialog_content{background:url(https://static.xx.fbcdn.net/rsrc.php/v3/y9/r/jKEcVPZFk-2.gif) no-repeat 50% 50%;border:1px solid #4a4a4a;border-bottom:0;border-top:0;height:150px}.fb_dialog_content .dialog_footer{background:#f5f6f7;border:1px solid #4a4a4a;border-top-color:#ccc;height:40px}#fb_dialog_loader_close{float:left}.fb_dialog.fb_dialog_mobile .fb_dialog_close_icon{visibility:hidden}#fb_dialog_loader_spinner{animation:rotateSpinner 1.2s linear infinite;background-color:transparent;background-image:url(https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/t-wz8gw1xG1.png);background-position:50% 50%;background-repeat:no-repeat;height:24px;width:24px}@keyframes rotateSpinner{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.fb_iframe_widget{display:inline-block;position:relative}.fb_iframe_widget span{display:inline-block;position:relative;text-align:justify}.fb_iframe_widget iframe{position:absolute}.fb_iframe_widget_fluid_desktop,.fb_iframe_widget_fluid_desktop span,.fb_iframe_widget_fluid_desktop iframe{max-width:100%}.fb_iframe_widget_fluid_desktop iframe{min-width:220px;position:relative}.fb_iframe_widget_lift{z-index:1}.fb_iframe_widget_fluid{display:inline}.fb_iframe_widget_fluid span{width:100%}</style><script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/alfie_v4.63f1ab6d6b9d5807dc0c94ef3fe0b851.js.download" async="" charset="UTF-8"></script></head>
+
+<body id="page-top" class="index"><div id="MathJax_Message" style="display: none;"></div>
+	
+	<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WSZMXZZ" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div style="padding-bottom: 50px;"><!-- spacer--></div>
+
+	
+
+  <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" onclick="$(&#39;.nav &gt; .dropdown&#39;).addClass(&#39;open&#39;)" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="https://www.business-science.io/">
+                  <img class="nav-logo logo-shadow" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/business-science-logo.png" alt="Business Science Logo" style="">
+                </a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                
+                <ul class="nav navbar-nav navbar-right">
+                  
+                  <!-- TAB 1 - Why Business Science? -->
+                    <li class="dropdown">
+                      <a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Why Business Science?</a>
+                      <ul class="dropdown-menu">
+                        <li><a href="https://www.business-science.io/testimonials.html">
+                        <i class="fas fa-chalkboard-teacher"></i> Our Student Transformations</a>
+                        </li>
+                        <li><a href="https://www.business-science.io/courses.html">
+                          <i class="fab fa-r-project"></i> How the Program Works</a>
+                        </li>
+                        <li><a href="https://www.business-science.io/community.html">
+                          <i class="fas fa-users"></i> Your Private Community</a>
+                        </li>
+                         <!-- TESTIMONIALS -->
+                        
+                      </ul>
+                    </li>
+
+    				        <!-- TAB 2 - COURSES -->
+                    <li class="dropdown">
+                      <a href="https://university.business-science.io/" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Courses
+                      </a>
+                      <ul class="dropdown-menu">
+                        
+                        <!-- Curriculum -->
+                        <li><a href="https://www.business-science.io/courses.html">
+                           <i class="fab fa-r-project"></i> How does the Program Work?</a>
+                        </li>
+                        
+                        <li role="separator" class="divider"></li>
+                        
+                        <!-- 5-Course R-Track -->
+                        <li>
+                          <a href="https://university.business-science.io/p/5-course-bundle-machine-learning-web-apps-time-series" target="_blank">
+                            <i class="fas fa-cubes fa-1x"></i> The 5-Course R-Track Program
+                          </a>
+                        </li>
+                        
+                        <!-- Individual Courses -->
+                        <li><a href="https://university.business-science.io/p/ds4b-101-r-business-analysis-r" target="_blank">
+                          <p style="text-indent:2em;font-size:16px;">
+                            <strong>Step 1:</strong> R for Business Analytics (DS4B 101-R) 
+                          </p>
+                          </a>
+                        </li>
+                        
+                        <li><a href="https://university.business-science.io/p/hr201-using-machine-learning-h2o-lime-to-predict-employee-turnover" target="_blank">
+                          <p style="text-indent:2em;font-size:16px;">
+                            <strong>Step 2:</strong> Advanced ML &amp; Business Consulting (DS4B 201-R)
+                          </p>
+                          </a>
+                        </li>
+                        
+                        <li><a href="https://university.business-science.io/p/ds4b-203-r-high-performance-time-series-forecasting" target="_blank">
+                          <p style="text-indent:2em;font-size:16px;">
+                            <strong>Step 3:</strong> High-Performance Time Series (DS4B 203-R)
+                          </p>
+                          </a>
+                        </li>
+                        
+                        <li><a href="https://university.business-science.io/p/ds4b-102-r-shiny-web-application-business-level-1/" target="_blank">
+                          <p style="text-indent:2em;font-size:16px;">
+                            <strong>Step 4:</strong> Shiny Predictive Dashboards (DS4B 102-R)
+                          </p>
+                          </a>
+                        </li>
+                        
+                        <li><a href="https://university.business-science.io/p/expert-shiny-developer-with-aws-course-ds4b-202a-r/" target="_blank">
+                          <p style="text-indent:2em;font-size:16px;">
+                            <strong>Step 5:</strong> Shiny Developer with AWS (DS4B 202A-R)
+                          </p>
+                          </a>
+                        </li>
+                        
+                        
+                        <!-- LL PRO -->
+                        <li role="separator" class="divider"></li>
+                        <li><a href="https://university.business-science.io/p/learning-labs-pro" target="_blank"><i class="fas fa-flask fa-1x"></i>
+ Learning Labs PRO</a></li>
+                        
+                      </ul>
+                    </li>
+
+                    <li class="">
+                      <a href="https://www.business-science.io/blog/index.html">Blog</a>
+                    </li>
+                    
+                    <!-- CONTACT -->
+                    <li class="">
+                      <a href="https://www.business-science.io/contact.html">Contact</a>
+                    </li>
+                    
+                    <!-- LOG IN -->
+                    <li>
+    				          <a href="https://sso.teachable.com/secure/173166/users/sign_up?reset_purchase_session=1">Log In</a>
+                    </li>
+                    <li>
+    				          <a class="btn btn-md btn-success" href="https://sso.teachable.com/secure/173166/users/sign_up?reset_purchase_session=1">Enroll Now</a>
+                    </li>
+				        </ul>
+
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+
+	<!-- Cover Container -->
+
+
+<div class="container testimonial-cover" style="background-color: #f1f1f1; width: 100%; padding-top:40px">
+    
+    <div id="cover" class="container well" style="background-color: rgba(0, 0, 0, 0.6);">
+        <div class="col-md-8">
+            <h1 style="padding-bottom: 0px !important;" class="text-center">Business Science</h1>
+            <h2>Data Science Courses for Business</h2>
+            <p class="subtitle">
+                Learn the data science skills to <strong><em>accelerate your career</em></strong> in 6-months or less.
+            </p>
+            <p class="benefits hidden-xs hidden-sm" style="padding-top: 20px;">
+                5-10 Hours Per Week.&nbsp; 80/20 Tools.&nbsp; End-To-End Business Projects.
+            </p>
+        </div>
+                        
+        <div class="hidden-xs hidden-sm" style="padding-top:60px;"><!-- additional spacer for larger screen size--></div>
+                            
+        <div class="col-md-4 text-center" style="padding-top:10px;">
+            <div class="thumbnail" style="color:#2c3e50;">
+                <div class="create-account-block">
+                                        
+                    <form>
+                        <p style="font-size: 17px; color: #6b6b6b;">Join over 30,000 Data Scientists</p>
+                        <h4>DATA SCIENCE<br>CHEAT SHEETS FOR FREE!</h4>
+                        <h4><em>Choose your interest:</em></h4>
+                        <p class="text-left" style="padding-left: 14px;">
+                            <input name="cheatsheet-option" type="radio" onclick="toggleCheatSheetDownload(&#39;r&#39;);" value="Download R Cheatsheet" checked="checked">&nbsp; Interested in R <br>
+                            <input name="cheatsheet-option" type="radio" onclick="toggleCheatSheetDownload(&#39;python&#39;);" value="Download Python Cheatsheet">&nbsp; Interested in Python <br>
+                            <input name="cheatsheet-option" type="radio" onclick="toggleCheatSheetDownload(&#39;segmentation&#39;);" value="Download Segmentation Cheatsheet">&nbsp; Interested in Segmentation <br>
+                            <input name="cheatsheet-option" type="radio" onclick="toggleCheatSheetDownload(&#39;ml&#39;);" value="Download ML Cheatsheet">&nbsp; Interested in Machine Learning
+                        </p>
+                        <!-- <div id="download-default">
+                            <a id="cheatsheet-download" data-sumome-listbuilder-id="" class="btn btn-lg btn-info" style="color:#fff;" disabled>Click Here to Download!</a>
+                        </div> -->
+                        <div id="download-r" style="display: block;">
+                            <a id="cheatsheet-download" data-sumome-listbuilder-id="6a54f0f0-90ea-4488-bddd-1f583c280dca" class="btn btn-lg btn-info" style="color:#fff;">Click Here to Download!</a>
+                        </div>
+                        <div id="download-python" style="display: none;">
+                            <a id="cheatsheet-download" data-sumome-listbuilder-id="a411aca8-9fa9-4774-8e48-daeb1a34a8a1" class="btn btn-lg btn-info" style="color:#fff;">Click Here to Download!</a>
+                        </div>
+                        <div id="download-segmentation" style="display: none;">
+                            <a id="cheatsheet-download" data-sumome-listbuilder-id="d72caf53-29f8-4543-a5bb-5adf5e7fa396" class="btn btn-lg btn-info" style="color:#fff;">Click Here to Download!</a>
+                        </div>
+                        <div id="download-ml" style="display: none;">
+                            <a id="cheatsheet-download" data-sumome-listbuilder-id="b48252d6-16f8-4cb8-a817-5778e4c938ee" class="btn btn-lg btn-info" style="color:#fff;">Click Here to Download!</a>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- end Cover Container -->
+<!-- end Cover Container -->
+
+<!-- Blog Body -->
+<section id="blog">
+
+  <!-- Main Body -->
+  <div class="container" id="blog_content">
+    <div class="row">
+    	<!-- Main Content -->
+    	<div class="col-md-9 col-md-offset-0" role="main">
+
+				<h1 style="margin-top: 20px !important;">Speed Up Your Code Part 2: Parallel Processing Financial Data with multidplyr + tidyquant</h1>
+				<p><em>Written  on January 21, 2017</em></p>
+
+				<br>
+
+	  		<p><img class="shadow img-responsive center-block" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/multidplyr.png" style="margin-top: 0px;"></p>
+	  		<hr class="margin-bottom-40">
+	    	<p>Since my <a href="http://www.mattdancho.com/code-tools/2016/12/18/multidplyr.html">initial post</a> on parallel processing with <code class="language-plaintext highlighter-rouge">multidplyr</code>, there have been some recent changes in the <code class="language-plaintext highlighter-rouge">tidy</code> eco-system: namely the package <code class="language-plaintext highlighter-rouge">tidyquant</code>, which brings financial analysis to the <code class="language-plaintext highlighter-rouge">tidyverse</code>. The <code class="language-plaintext highlighter-rouge">tidyquant</code> package drastically increase the amount of tidy financial data we have access to and reduces the amount of code needed to get financial data into the tidy format. The <code class="language-plaintext highlighter-rouge">multidplyr</code> package adds parallel processing capability to improve the speed at which analysis can be scaled. I seriously think these two packages were made for each other. I’ll go through the same example used previously, updated with the new <code class="language-plaintext highlighter-rouge">tidyquant</code> functionality.</p>
+
+<h1 id="table-of-contents">Table of Contents</h1>
+
+<ul>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#finance">Parallel Processing Applications in Finance</a></li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#prerequisites">Prerequisites</a></li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#workflow">Workflow</a></li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#example">Real World Example</a>
+    <ul>
+      <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#prep">Prep-Work</a></li>
+      <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#series">Processing in Series</a></li>
+      <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#parallel">Processing in Parallel</a>
+        <ul>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#get-cores">Step 0: Get Number of Cores (Optional)</a></li>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#add-groups">Step 1: Add Groups</a></li>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#create-clusters">Step 2: Create Clusters</a></li>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#partition">Step 3: Partition by Group</a></li>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#setup-clusters">Step 4: Setup Clusters</a></li>
+          <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#visualize-results">Step 5: Run Parallelized Code</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#conclusions">Conclusion</a></li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#recap">Recap</a></li>
+  <li><a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#further-reading">Further Reading</a></li>
+</ul>
+
+<h1 id="parallel-processing-applications-in-financial-analysis-">Parallel Processing Applications in Financial Analysis <a class="anchor" id="finance"></a></h1>
+
+<p>Collecting financial data in tidy format was overly difficult. Getting from <code class="language-plaintext highlighter-rouge">xts</code> to <code class="language-plaintext highlighter-rouge">tibble</code> was a pain, and there’s some amazing <code class="language-plaintext highlighter-rouge">tidyverse</code> functionality that cannot be used without the <code class="language-plaintext highlighter-rouge">tibble</code> (tidy data frame) format. That all changed with <code class="language-plaintext highlighter-rouge">tidyquant</code>. There’s a wide range of free data sources, and the <code class="language-plaintext highlighter-rouge">tidyquant</code> package makes it super simple to get financial and economic data in tidy format (more on this in a minute).</p>
+
+<p>There’s one caveat to collecting data at scale: it takes time. Getting data from the internet, historical stock prices or financial statements or real-time statistics, for 500+ stocks can take anywhere from several minutes to 20+ minutes depending on the data size and number of stocks. <code class="language-plaintext highlighter-rouge">tidyquant</code> makes it easier to get and analyze data in the correct format, but we need a new tool to speed up the process. Enter <code class="language-plaintext highlighter-rouge">multidplyr</code>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">multidplyr</code> package makes it super simple to parallelize code. It works perfectly in the <code class="language-plaintext highlighter-rouge">tidyverse</code>, and, by the associative propery, works perfectly with <code class="language-plaintext highlighter-rouge">tidyquant</code>.</p>
+
+<p>The example in this post shows off the new <code class="language-plaintext highlighter-rouge">tq_get()</code> function for getting stock prices at scale. However, we can get and scale much more than just stock prices. <code class="language-plaintext highlighter-rouge">tq_get</code> has the following data retrieval options:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "stock.index"</code>: This retrieves the entire list of stocks in an index. 18 indexes are available. Use <code class="language-plaintext highlighter-rouge">tq_get_stock_index_options()</code> to see the full list.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "stock.prices"</code>: This retrieves historical stock prices over a time period specified by <code class="language-plaintext highlighter-rouge">to</code> and <code class="language-plaintext highlighter-rouge">from</code>. This is the default option, and the one we use in this post.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "key.ratios"</code>: This retrieves the key ratios from Morningstar, which are historical values over the past 10-years. There are 89 key ratios ranging from valuation, to growth and profitability, to efficiency. This is a great place to chart business performance over time and to compare the key ratios by company. Great for financial analysis!</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "key.stats"</code>: This retrieves real-time key stats from Yahoo Finance, which consist of bid, ask, day’s high, day’s low, change, current P/E valuation, current Market Cap, and many more up-to-the-minute stats on a stock. This is a great place for the day trader to work since all of the data is accurate as of the second you download it.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "financials"</code>: This retrieves the annual and quarterly financial statement data from Google Finance. Great for financial analysis!</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">get = "economic.data"</code>: This retrieves economic data from the FRED database by FRED code. As of the blog post date, there are 429,000 US and international time-series data sets from 80 sources. All you need is the FRED symbol such as <a href="https://fred.stlouisfed.org/series/CPIAUCSL">“CPIAUCSL”</a> for CPI. Vist the <a href="https://fred.stlouisfed.org/">FRED website</a> to learn more.</p>
+  </li>
+  <li>
+    <p>Other get options: <code class="language-plaintext highlighter-rouge">"metal.prices"</code>, <code class="language-plaintext highlighter-rouge">"exchange.rates"</code>, <code class="language-plaintext highlighter-rouge">"dividends"</code>, and <code class="language-plaintext highlighter-rouge">"splits"</code>. There’s lots of data you can get using <code class="language-plaintext highlighter-rouge">tq_get</code>!</p>
+  </li>
+</ul>
+
+<p>The point I want to make is that <strong>ANY OF THESE GET OPTIONS CAN BE SCALED USING THE PROCESS I USE NEXT!!!</strong></p>
+
+<h1 id="prerequisites-">Prerequisites <a class="anchor" id="prerequisites"></a></h1>
+
+<p>The <code class="language-plaintext highlighter-rouge">multidplyr</code> package is not available on CRAN, but you can install it using <code class="language-plaintext highlighter-rouge">devtools</code>. Also, install the development version of <code class="language-plaintext highlighter-rouge">tidyquant</code> which has added functionality that will be available on CRAN soon with v0.3.0.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">install.packages</span><span class="p">(</span><span class="s2"><span class="hljs-string">"devtools"</span></span><span class="p">)</span><span class="w">
+</span><span class="n">devtools</span><span class="o">::</span><span class="n">install_github</span><span class="p">(</span><span class="s2"><span class="hljs-string">"hadley/multidplyr"</span></span><span class="p">)</span><span class="w">
+</span><span class="n">devtools</span><span class="o">::</span><span class="n">install_github</span><span class="p">(</span><span class="s2"><span class="hljs-string">"mdancho84/tidyquant"</span></span><span class="p">)</span></code></pre></figure>
+
+<p>For those following along in <em>R</em>, you’ll need to load the following packages:</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n"><span class="hljs-keyword">library</span></span><span class="p">(</span><span class="n">multidplyr</span><span class="p">)</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># parallel processing</span></span><span class="w">
+</span><span class="n"><span class="hljs-keyword">library</span></span><span class="p">(</span><span class="n">tidyquant</span><span class="p">)</span><span class="w">  </span><span class="c1"><span class="hljs-comment"># tidy financial analysis :)</span></span></code></pre></figure>
+
+<p>I also recommend the open-source <a href="https://www.rstudio.com/">RStudio</a> IDE, which makes <em>R Programming</em> easy and efficient.</p>
+
+<h1 id="workflow-">Workflow <a class="anchor" id="workflow"></a></h1>
+
+<p>The <code class="language-plaintext highlighter-rouge">multidplyr</code> workflow can be broken down into five basic steps shown in <a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#figure1"><em>Figure 1</em></a>. The five steps are implemented in <a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#parallel">Processing in Parallel</a>.</p>
+
+<p><a class="anchor" id="figure1"></a></p>
+
+<p><img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/multidplyr.png" alt="multidplyr worfkflow" class="img-responsive center-block shadow"></p>
+
+<p class="text-center date">Figure 1: multidplyr Workflow</p>
+
+<p>Essentially, you start with some data set that you need to do things to multiple times. Your situation generally falls into one of two types:</p>
+
+<ol>
+  <li>It could be a really large data set that you want to split up into several small data sets and perform the same thing on each.</li>
+  <li>It could be one data set that you want to perform multiple things on (e.g. apply many models).</li>
+</ol>
+
+<p>The good news is both situations follow the same basic workflow. The toughest part is getting your data in the format needed to process using the workflow. Don’t worry, we’ll go through a real world example shortly so you can see how this is accomplished.</p>
+
+<h1 id="real-world-example-">Real World Example <a class="anchor" id="example"></a></h1>
+
+<p>We’ll go through the <code class="language-plaintext highlighter-rouge">multidplyr</code> workflow using a real world example that I routinely use: collecting stock prices from the inter-web. Other uses include using modeling functions over grouped data sets, using many models on the same data set, and processing text (e.g. getting n-grams on large corpora). Basically anything with a loop.</p>
+
+<h2 id="prep-work-">Prep-Work <a class="anchor" id="prep"></a></h2>
+
+<p>In preparation for collecting stock prices, we need two things:</p>
+
+<ol>
+  <li>A list of stocks</li>
+  <li>A function to get stock prices from a stock symbol</li>
+</ol>
+
+<p>Let’s see how tidyquant makes this easy. First, getting a stock index used to be a pain:</p>
+
+<p><strong>Before tidyquant (Don’t use this)</strong>:</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n"><span class="hljs-keyword">library</span></span><span class="p">(</span><span class="n">rvest</span><span class="p">)</span><span class="w">
+</span><span class="c1"><span class="hljs-comment"># Web-scrape SP500 stock list from Wikipedia</span></span><span class="w">
+</span><span class="n">sp_500</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">read_html</span><span class="p">(</span><span class="s2"><span class="hljs-string">"<a class="vglnk" href="https://en.wikipedia.org/wiki/List_of_S%26P_500_companies" rel="nofollow"><span>https</span><span>://</span><span>en</span><span>.</span><span>wikipedia</span><span>.</span><span>org</span><span>/</span><span>wiki</span><span>/</span><span>List</span><span>_</span><span>of</span><span>_</span><span>S</span><span>%</span><span>26P</span><span>_</span><span>500</span><span>_</span><span>companies</span></a>"</span></span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">html_node</span><span class="p">(</span><span class="s2"><span class="hljs-string">"table.wikitable"</span></span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">html_table</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">select</span><span class="p">(</span><span class="n">`Ticker symbol`</span><span class="p">,</span><span class="w"> </span><span class="n">Security</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">as_tibble</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">rename</span><span class="p">(</span><span class="n">symbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">`Ticker symbol`</span><span class="p">,</span><span class="w">
+           </span><span class="n">company</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Security</span><span class="p">)</span><span class="w">
+</span><span class="c1"><span class="hljs-comment"># Show results</span></span><span class="w">
+</span><span class="n">sp_500</span></code></pre></figure>
+
+<p><strong>Now with tidyquant (Use this!)</strong>:</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">sp_500</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">tq_get</span><span class="p">(</span><span class="s2"><span class="hljs-string">"SP500"</span></span><span class="p">,</span><span class="w"> </span><span class="n">get</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"stock.index"</span></span><span class="p">)</span><span class="w">
+</span><span class="n">sp_500</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## # A tibble: 501 × 2
+##    symbol                   company
+##     &lt;chr&gt;                     &lt;chr&gt;
+## 1     MMM                        3M
+## 2     ABT       ABBOTT LABORATORIES
+## 3    ABBV                ABBVIE INC
+## 4     ACN                 ACCENTURE
+## 5    ATVI       ACTIVISION BLIZZARD
+## 6     AYI             ACUITY BRANDS
+## 7    ADBE             ADOBE SYSTEMS
+## 8     AAP        ADVANCE AUTO PARTS
+## 9     AET                     AETNA
+## 10    AMG AFFILIATED MANAGERS GROUP
+## # ... with 491 more rows</code></pre></figure>
+
+<p>Second, getting stock prices in tidy format used to be a pain:</p>
+
+<p><strong>Before tidyquant (Don’t use this)</strong>:</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n"><span class="hljs-keyword">library</span></span><span class="p">(</span><span class="n">quantmod</span><span class="p">)</span><span class="w">
+</span><span class="c1"><span class="hljs-comment"># Function to Get Stock Prices in Tidy Form</span></span><span class="w">
+</span><span class="n">get_stock_prices</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="k"><span class="hljs-keyword">function</span></span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span><span class="w"> </span><span class="n">return_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"tibble"</span></span><span class="p">,</span><span class="w"> </span><span class="n"><span class="hljs-keyword">...</span></span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="c1"><span class="hljs-comment"># Get stock prices; Handle errors</span></span><span class="w">
+    </span><span class="n">stock_prices</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n"><span class="hljs-keyword">tryCatch</span></span><span class="p">({</span><span class="w">
+        </span><span class="n">getSymbols</span><span class="p">(</span><span class="n">Symbols</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">symbol</span><span class="p">,</span><span class="w"> </span><span class="n">auto.assign</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc"><span class="hljs-literal">FALSE</span></span><span class="p">,</span><span class="w"> </span><span class="n"><span class="hljs-keyword">...</span></span><span class="p">)</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k"><span class="hljs-keyword">function</span></span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nf"><span class="hljs-keyword">return</span></span><span class="p">(</span><span class="kc"><span class="hljs-literal">NA</span></span><span class="p">)</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># Return NA on error</span></span><span class="w">
+    </span><span class="p">})</span><span class="w">
+    </span><span class="k"><span class="hljs-keyword">if</span></span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">stock_prices</span><span class="p">[[</span><span class="m"><span class="hljs-number">1</span></span><span class="p">]]))</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="c1"><span class="hljs-comment"># Rename</span></span><span class="w">
+        </span><span class="nf">names</span><span class="p">(</span><span class="n">stock_prices</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2"><span class="hljs-string">"Open"</span></span><span class="p">,</span><span class="w"> </span><span class="s2"><span class="hljs-string">"High"</span></span><span class="p">,</span><span class="w"> </span><span class="s2"><span class="hljs-string">"Low"</span></span><span class="p">,</span><span class="w"> </span><span class="s2"><span class="hljs-string">"Close"</span></span><span class="p">,</span><span class="w"> </span><span class="s2"><span class="hljs-string">"Volume"</span></span><span class="p">,</span><span class="w"> </span><span class="s2"><span class="hljs-string">"Adjusted"</span></span><span class="p">)</span><span class="w">
+        </span><span class="c1"><span class="hljs-comment"># Return in xts format if tibble is not specified</span></span><span class="w">
+        </span><span class="k"><span class="hljs-keyword">if</span></span><span class="w"> </span><span class="p">(</span><span class="n">return_format</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2"><span class="hljs-string">"tibble"</span></span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="n">stock_prices</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">stock_prices</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+                </span><span class="n">as_tibble</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+                </span><span class="n">rownames_to_column</span><span class="p">(</span><span class="n">var</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"Date"</span></span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+                </span><span class="n">mutate</span><span class="p">(</span><span class="n">Date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ymd</span><span class="p">(</span><span class="n">Date</span><span class="p">))</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+        </span><span class="nf"><span class="hljs-keyword">return</span></span><span class="p">(</span><span class="n">stock_prices</span><span class="p">)</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span></code></pre></figure>
+
+<p><strong>Now with tidyquant (Use this!)</strong>:</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">tq_get</span><span class="p">(</span><span class="s2"><span class="hljs-string">"AAPL"</span></span><span class="p">,</span><span class="w"> </span><span class="n">get</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"stock.prices"</span></span><span class="p">)</span></code></pre></figure>
+
+<p>Note that you can replace <code class="language-plaintext highlighter-rouge">"stock.prices"</code> with <code class="language-plaintext highlighter-rouge">"key.ratios"</code>, <code class="language-plaintext highlighter-rouge">"key.stats"</code>, <code class="language-plaintext highlighter-rouge">"financials"</code>, etc to get other financial data for a stock symbol. These options can be scaled as well!</p>
+
+<h2 id="processing-in-series-">Processing In Series <a class="anchor" id="series"></a></h2>
+
+<p>The next computation is the routine that we wish to parallelize, but first we’ll time the script running on one processor, looping in series. We are collecting ten years of historical daily stock prices for each of the 500+ stocks. This is now a simple chaining operation with <code class="language-plaintext highlighter-rouge">tidyquant</code>, which accepts a tibble of stocks with the symbols in the first column.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="c1"><span class="hljs-comment"># Map get_stock_prices() to list of stock symbols</span></span><span class="w">
+</span><span class="n">from</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2"><span class="hljs-string">"2007-01-01"</span></span><span class="w">
+</span><span class="n">to</span><span class="w">   </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">today</span><span class="p">()</span><span class="w">
+</span><span class="c1"><span class="hljs-comment"># Series</span></span><span class="w">
+</span><span class="n">start</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">proc.time</span><span class="p">()</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># Start clock</span></span><span class="w">
+</span><span class="n">sp_500</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">tq_get</span><span class="p">(</span><span class="n">get</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"stock.prices"</span></span><span class="p">,</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">from</span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">to</span><span class="p">)</span><span class="w">
+</span><span class="n">time_elapsed_series</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">proc.time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># End clock</span></span></code></pre></figure>
+
+<p>The result, <code class="language-plaintext highlighter-rouge">sp_500_processed_in_series</code> is a <code class="language-plaintext highlighter-rouge">tibble</code> (tidy data frame) with the stock prices for the 500+ stocks.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">sp_500_processed_in_series</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## # A tibble: 1,209,822 × 9
+##    symbol company       date  open  high   low close  volume adjusted
+##     &lt;chr&gt;   &lt;chr&gt;     &lt;date&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+## 1     MMM      3M 2007-01-03 77.53 78.85 77.38 78.26 3781500 60.31064
+## 2     MMM      3M 2007-01-04 78.40 78.41 77.45 77.95 2968400 60.07174
+## 3     MMM      3M 2007-01-05 77.89 77.90 77.01 77.42 2765200 59.66330
+## 4     MMM      3M 2007-01-08 77.42 78.04 76.97 77.59 2434500 59.79431
+## 5     MMM      3M 2007-01-09 78.00 78.23 77.44 77.68 1896800 59.86367
+## 6     MMM      3M 2007-01-10 77.31 77.96 77.04 77.85 1787500 59.99468
+## 7     MMM      3M 2007-01-11 78.05 79.03 77.88 78.65 2372500 60.61120
+## 8     MMM      3M 2007-01-12 78.41 79.50 78.22 79.36 2582200 61.15835
+## 9     MMM      3M 2007-01-16 79.48 79.62 78.92 79.56 2526600 61.31248
+## 10    MMM      3M 2007-01-17 79.33 79.51 78.75 78.91 2711300 60.81156
+## # ... with 1,209,812 more rows</code></pre></figure>
+
+<p>And, let’s see how long it took when processing in series. The processing time is the time elapsed in seconds. Converted to minutes this is approximately 3.71 minutes.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">time_elapsed_series</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##    user  system elapsed 
+##  113.62    4.31  222.79</code></pre></figure>
+
+<h2 id="processing-in-parallel-">Processing in Parallel <a class="anchor" id="parallel"></a></h2>
+
+<p>We just collected ten years of daily stock prices for over 500 stocks in about 3.71 minutes. Let’s parallelize the computation to get an improvement. We will follow the six steps shown in <a href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#figure1"><em>Figure 1</em></a>.</p>
+
+<h3 id="step-0-get-number-of-cores-optional-">Step 0: Get Number of Cores (Optional) <a class="anchor" id="get-cores"></a></h3>
+
+<p>Prior to starting, you may want to determine how many cores your machine has. An easy way to do this is using <code class="language-plaintext highlighter-rouge">parallel::detectCores()</code>. This will be used to determine the number of groups to split the data into in the next set.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n"><span class="hljs-keyword">library</span></span><span class="p">(</span><span class="n">parallel</span><span class="p">)</span><span class="w">
+</span><span class="n">cl</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">detectCores</span><span class="p">()</span><span class="w">
+</span><span class="n">cl</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## [1] 8</code></pre></figure>
+
+<h3 id="step-1-add-groups-">Step 1: Add Groups <a class="anchor" id="add-groups"></a></h3>
+
+<p>Let’s add groups to <code class="language-plaintext highlighter-rouge">sp_500</code>. The groups are needed to divide the data across your <code class="language-plaintext highlighter-rouge">cl</code> number cores. For me, this is 8 cores. We create a <code class="language-plaintext highlighter-rouge">group</code> vector, which is a sequential vector of <code class="language-plaintext highlighter-rouge">1:cl</code> (1 to 8) repeated the length of the number of rows in <code class="language-plaintext highlighter-rouge">sp_500</code>. We then add the <code class="language-plaintext highlighter-rouge">group</code> vector to the <code class="language-plaintext highlighter-rouge">sp_500</code> tibble using the <code class="language-plaintext highlighter-rouge">dplyr::bind_cols()</code> function.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">group</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rep</span><span class="p">(</span><span class="m"><span class="hljs-number">1</span></span><span class="o">:</span><span class="n">cl</span><span class="p">,</span><span class="w"> </span><span class="n">length.out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nrow</span><span class="p">(</span><span class="n">sp_500</span><span class="p">))</span><span class="w">
+</span><span class="n">sp_500</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">bind_cols</span><span class="p">(</span><span class="n">tibble</span><span class="p">(</span><span class="n">group</span><span class="p">),</span><span class="w"> </span><span class="n">sp_500</span><span class="p">)</span><span class="w">
+</span><span class="n">sp_500</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## # A tibble: 501 × 3
+##    group symbol                   company
+##    &lt;int&gt;  &lt;chr&gt;                     &lt;chr&gt;
+## 1      1    MMM                        3M
+## 2      2    ABT       ABBOTT LABORATORIES
+## 3      3   ABBV                ABBVIE INC
+## 4      4    ACN                 ACCENTURE
+## 5      5   ATVI       ACTIVISION BLIZZARD
+## 6      6    AYI             ACUITY BRANDS
+## 7      7   ADBE             ADOBE SYSTEMS
+## 8      8    AAP        ADVANCE AUTO PARTS
+## 9      1    AET                     AETNA
+## 10     2    AMG AFFILIATED MANAGERS GROUP
+## # ... with 491 more rows</code></pre></figure>
+
+<h3 id="step-2-create-clusters-">Step 2: Create Clusters <a class="anchor" id="create-clusters"></a></h3>
+
+<p>Use the <code class="language-plaintext highlighter-rouge">create_cluster()</code> function from the <code class="language-plaintext highlighter-rouge">multidplyr</code> package. Think of a cluster as a work environment on a core. Therefore, the code below establishes a work environment on each of the 8 cores.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">cluster</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">create_cluster</span><span class="p">(</span><span class="n">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="p">)</span><span class="w">
+</span><span class="n">cluster</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## socket cluster with 8 nodes on host 'localhost'</code></pre></figure>
+
+<h3 id="step-3-partition-by-group-">Step 3: Partition by Group <a class="anchor" id="partition"></a></h3>
+
+<p>Next is partitioning. Think of partitioning as sending a subset of the initial <code class="language-plaintext highlighter-rouge">tibble</code> to each of the clusters. The result is a partitioned data frame (<code class="language-plaintext highlighter-rouge">party_df</code>), which we explore next. Use the <code class="language-plaintext highlighter-rouge">partition()</code> function from the <code class="language-plaintext highlighter-rouge">multidplyr</code> package to split the <code class="language-plaintext highlighter-rouge">sp_500</code> list by group and send each group to a different cluster.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">by_group</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sp_500</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">partition</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="n">cluster</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cluster</span><span class="p">)</span><span class="w">
+</span><span class="n">by_group</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## Source: party_df [501 x 3]
+## Groups: group
+## Shards: 8 [62--63 rows]
+## 
+## # S3: party_df
+##    group symbol              company
+##    &lt;int&gt;  &lt;chr&gt;                &lt;chr&gt;
+## 1      7   ADBE        ADOBE SYSTEMS
+## 2      7    ALK     ALASKA AIR GROUP
+## 3      7     MO               ALTRIA
+## 4      7    AWK AMERICAN WATER WORKS
+## 5      7   ANTM         ANTHEM, INC.
+## 6      7    AIZ             ASSURANT
+## 7      7    AVY       AVERY DENNISON
+## 8      7    BDX     BECTON DICKINSON
+## 9      7    BMY BRISTOL-MYERS SQUIBB
+## 10     7    CAT          CATERPILLAR
+## # ... with 491 more rows</code></pre></figure>
+
+<p>The result, <code class="language-plaintext highlighter-rouge">by_group</code>, looks similar to our original <code class="language-plaintext highlighter-rouge">tibble</code>, but it is a <code class="language-plaintext highlighter-rouge">party_df</code>, which is very different. The key is to notice that the there are 8 <code class="language-plaintext highlighter-rouge">Shards</code>. Each <code class="language-plaintext highlighter-rouge">Shard</code> has between 63 and 64 rows, which evenly splits our data among each shard. Now that our <code class="language-plaintext highlighter-rouge">tibble</code> has been partitioned into a <code class="language-plaintext highlighter-rouge">party_df</code>, we are ready to move onto setting up the clusters.</p>
+
+<h3 id="step-4-setup-clusters-">Step 4: Setup Clusters <a class="anchor" id="setup-clusters"></a></h3>
+
+<p>The clusters have a local, bare-bones <em>R work environment</em>, which doesn’t work for the vast majority of cases. Code typically depends on libraries, functions, expressions, variables, and/or data that are not available in base <em>R</em>. Fortunately, there is a way to add these items to the clusters. Let’s see how.</p>
+
+<p>For our computation, we are going to need to add the <code class="language-plaintext highlighter-rouge">tidyquant</code> library and our variables <code class="language-plaintext highlighter-rouge">to</code>, and <code class="language-plaintext highlighter-rouge">from</code>. We do this by using the <code class="language-plaintext highlighter-rouge">cluster_library()</code> and <code class="language-plaintext highlighter-rouge">cluster_assign_value()</code> functions, respectively.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">from</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s2"><span class="hljs-string">"2007-01-01"</span></span><span class="w">
+</span><span class="n">to</span><span class="w">   </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">today</span><span class="p">()</span><span class="w">
+</span><span class="c1"><span class="hljs-comment"># Utilize pipe (%&gt;%) to assign libraries, functions, and values to clusters</span></span><span class="w">
+</span><span class="n">by_group</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="c1"><span class="hljs-comment"># Libraries</span></span><span class="w">
+    </span><span class="n">cluster_library</span><span class="p">(</span><span class="s2"><span class="hljs-string">"tidyquant"</span></span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="c1"><span class="hljs-comment"># Load functions/variable</span></span><span class="w">
+    </span><span class="n">cluster_assign_value</span><span class="p">(</span><span class="s2"><span class="hljs-string">"from"</span></span><span class="p">,</span><span class="w"> </span><span class="n">from</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">cluster_assign_value</span><span class="p">(</span><span class="s2"><span class="hljs-string">"to"</span></span><span class="p">,</span><span class="w"> </span><span class="n">to</span><span class="p">)</span></code></pre></figure>
+
+<p>We can verify that the libraries are loaded using the <code class="language-plaintext highlighter-rouge">cluster_eval()</code> function.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">cluster_eval</span><span class="p">(</span><span class="n">by_group</span><span class="p">,</span><span class="w"> </span><span class="n">search</span><span class="p">())[[</span><span class="m"><span class="hljs-number">1</span></span><span class="p">]]</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># results for first cluster shown only</span></span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##  [1] ".GlobalEnv"        "package:tidyquant" "package:dplyr"    
+##  [4] "package:purrr"     "package:readr"     "package:tidyr"    
+##  [7] "package:tibble"    "package:ggplot2"   "package:tidyverse"
+## [10] "package:quantmod"  "package:TTR"       "package:xts"      
+## [13] "package:zoo"       "package:lubridate" "package:stats"    
+## [16] "package:graphics"  "package:grDevices" "package:utils"    
+## [19] "package:datasets"  "package:methods"   "Autoloads"        
+## [22] "package:base"</code></pre></figure>
+
+<h3 id="step-5-run-parallelized-code-">Step 5: Run Parallelized Code <a class="anchor" id="visualize-results"></a></h3>
+
+<p>Now that we have our clusters and partitions set up and everything looks good, we can run the parallelized code. The code chunk is a little bit different than before because we need to use <code class="language-plaintext highlighter-rouge">purrr</code> to map <code class="language-plaintext highlighter-rouge">tq_get()</code> to each stock symbol:</p>
+
+<ol>
+  <li>Instead of starting with the <code class="language-plaintext highlighter-rouge">sp_500 tibble</code>, we start with the <code class="language-plaintext highlighter-rouge">by_group party_df</code></li>
+  <li>This is how we scale with <code class="language-plaintext highlighter-rouge">purrr</code>: We use a combination of <code class="language-plaintext highlighter-rouge">dplyr::mutate()</code> and <code class="language-plaintext highlighter-rouge">purrr::map()</code> to map our <code class="language-plaintext highlighter-rouge">tq_get()</code> function to the stocks.</li>
+  <li>We combine the results at the end using the <code class="language-plaintext highlighter-rouge">multidplyr::collect()</code> function. The result is a nested tibble.</li>
+  <li>We unnest with <code class="language-plaintext highlighter-rouge">tidyr::unnest()</code> to return the same single-level tibble as before.</li>
+  <li>Finally, we use <code class="language-plaintext highlighter-rouge">dplyr::arrange()</code> to arrange the stocks in the same order as previous. The <code class="language-plaintext highlighter-rouge">collect()</code> function returns the shards (cluster data groups) binded in whatever group is done first. Typically you’ll want to re-arrange.</li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">start</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">proc.time</span><span class="p">()</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># Start clock</span></span><span class="w">
+</span><span class="n">sp_500_processed_in_parallel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">by_group</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">mutate</span><span class="p">(</span><span class="w">
+        </span><span class="n">stock.prices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">map</span><span class="p">(</span><span class="n">symbol</span><span class="p">,</span><span class="w">
+                           </span><span class="k"><span class="hljs-keyword">function</span></span><span class="p">(</span><span class="n">.x</span><span class="p">)</span><span class="w"> </span><span class="n">tq_get</span><span class="p">(</span><span class="n">.x</span><span class="p">,</span><span class="w">
+                                              </span><span class="n">get</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2"><span class="hljs-string">"stock.prices"</span></span><span class="p">,</span><span class="w">
+                                              </span><span class="n">from</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">from</span><span class="p">,</span><span class="w">
+                                              </span><span class="n">to</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">to</span><span class="p">)</span><span class="w">
+        </span><span class="p">)</span><span class="w">
+    </span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">collect</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">unnest</span><span class="p">()</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">arrange</span><span class="p">(</span><span class="n">symbol</span><span class="p">)</span><span class="w">
+</span><span class="n">time_elapsed_parallel</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">proc.time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="c1"><span class="hljs-comment"># End clock</span></span></code></pre></figure>
+
+<p>Let’s check out the results</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">sp_500_processed_in_parallel</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">## Source: local data frame [1,209,820 x 10]
+## Groups: group [8]
+## 
+##    group symbol              company       date  open  high   low
+##    &lt;int&gt;  &lt;chr&gt;                &lt;chr&gt;     &lt;date&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1      4      A AGILENT TECHNOLOGIES 2007-01-03 34.99 35.48 34.05
+## 2      4      A AGILENT TECHNOLOGIES 2007-01-04 34.30 34.60 33.46
+## 3      4      A AGILENT TECHNOLOGIES 2007-01-05 34.30 34.40 34.00
+## 4      4      A AGILENT TECHNOLOGIES 2007-01-08 33.98 34.08 33.68
+## 5      4      A AGILENT TECHNOLOGIES 2007-01-09 34.08 34.32 33.63
+## 6      4      A AGILENT TECHNOLOGIES 2007-01-10 34.04 34.04 33.37
+## 7      4      A AGILENT TECHNOLOGIES 2007-01-11 33.83 34.04 33.35
+## 8      4      A AGILENT TECHNOLOGIES 2007-01-12 33.67 34.04 33.54
+## 9      4      A AGILENT TECHNOLOGIES 2007-01-16 33.51 33.93 33.34
+## 10     4      A AGILENT TECHNOLOGIES 2007-01-17 33.43 33.48 32.76
+## # ... with 1,209,810 more rows, and 3 more variables: close &lt;dbl&gt;,
+## #   volume &lt;dbl&gt;, adjusted &lt;dbl&gt;</code></pre></figure>
+
+<p>And, let’s see how long it took when processing in parallel.</p>
+
+<figure class="highlight"><pre><code class="language-r hljs" data-lang="r"><span class="n">time_elapsed_parallel</span></code></pre></figure>
+
+<figure class="highlight"><pre><code class="language-text" data-lang="text">##    user  system elapsed 
+##    2.47    0.85   39.48</code></pre></figure>
+
+<p><strong>The processing time is approximately 0.66 minutes, which is 5.6X faster!</strong> Note that it’s not a full 8X faster because of transmission time as data is sent to and from the nodes. With that said, the speed will approach 8X improvement as calculations become longer since the transmission time is fixed whereas the computation time is variable.</p>
+
+<h1 id="conclusion-">Conclusion <a class="anchor" id="conclusions"></a></h1>
+
+<p>Parallelizing code can drastically improve speed on multi-core machines. It makes the most sense in situations involving many iterative computations. On an 8 core machine, processing time significantly improves. It will not be quite 8X faster, but the longer the computation the closer the speed gets to the full 8X improvement. <strong>For a computation that takes two minutes under normal conditions, we improved the processing speed by over 5X through parallel processing!</strong></p>
+
+<h1 id="recap-">Recap <a class="anchor" id="recap"></a></h1>
+
+<p>The focus of this post was to show how you can implement <code class="language-plaintext highlighter-rouge">tidyquant</code> with the <code class="language-plaintext highlighter-rouge">multidplyr</code> parallel-processing package for parallel processing financial applications. We worked through the five main steps in the <code class="language-plaintext highlighter-rouge">multidplyr</code> workflow using the new <code class="language-plaintext highlighter-rouge">tidyquant</code> package, which makes it much easier to get financial data in tidy format. Keep in mind that you can use any <code class="language-plaintext highlighter-rouge">tq_get</code> “get” option at scale.</p>
+
+<h1 id="further-reading-">Further Reading <a class="anchor" id="further-reading"></a></h1>
+
+<ol>
+  <li>
+    <p><strong><a href="https://cran.r-project.org/package=tidyquant">Tidyquant Vignettes</a></strong>: This tutorial just scratches the surface of <code class="language-plaintext highlighter-rouge">tidyquant</code>. The vignettes explain much, much more!</p>
+  </li>
+  <li>
+    <p><strong><a href="https://github.com/hadley/multidplyr">Multidplyr on GitHub</a></strong>: The vignette explains the <code class="language-plaintext highlighter-rouge">multidplyr</code> workflow using the <code class="language-plaintext highlighter-rouge">flights</code> data set from the <code class="language-plaintext highlighter-rouge">nycflights13</code> package.</p>
+  </li>
+</ol>
+
+	    </div>
+	    <!-- Sidebar -->
+	    <div class="col-md-3 well well-lg bs-component hidden-print hidden-sm hidden-xs" role="complimentary">
+	    	<nav class="bs-docs-sidebar ">
+	<ul class="nav bs-docs-sidenav">
+        
+        <!-- Search -->
+		<li>
+		    <div class="row">
+		        <div class="col-xs-12">
+		            <h5>Get Articles in Your Inbox</h5>
+		            <link href="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/slim-10_7.css" rel="stylesheet" type="text/css">	        
+                    <style type="text/css">	                      
+                    	#mc_embed_signup{ width:100%;}
+                    </style>	
+            
+                    <div id="mc_embed_signup">	
+						<form action="https://business-science.us17.list-manage.com/subscribe/post?u=cc36813ecec32f8e7b5088961&amp;id=a4e5b7c52f" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="">	
+                            <div class="row">	
+                                <div id="mc_embed_signup_scroll">	
+    
+                                    <div class="col-md-12">	
+                                        <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" style="width:100%; color: #2c3e50; text-align:center;" placeholder="email" required="">	
+                                        <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_cc36813ecec32f8e7b5088961_a4e5b7c52f" tabindex="-1" value=""></div>	
+                                    </div>	
+    
+                                    <div class="col-sm-12 col-md-12 text-center">	
+                                        <input type="submit" value="Get Articles" name="subscribe" id="mc-embedded-subscribe" class="btn btn-success btn-md" style="margin-bottom: 8px;">	
+                                    </div>	
+                                </div>	
+                            </div>	
+
+                        </form>
+		        </div>
+		    </div>
+		   </div>
+		</li>
+		<li><hr></li>
+		<!-- Search -->
+		<li>
+		    <form class="navbar-form" role="search" method="get" action="https://google.com/search">
+              <div class="row">
+                  <div class="col-xs-12">
+                      <h5>Search for Articles</h5>
+                  </div>
+                  <div class="col-xs-8" style="padding-right:0px;">
+  <div class="form-group" id="inline">
+    <input type="hidden" name="q" value="site:business-science.io">
+    <input type="text" class="form-control search-query" name="q" placeholder="Search">
+  </div>
+</div>
+<div class="col-xs-2" style="padding-left:0px;">
+  <button type="submit" class="btn btn-default"><i class="fa fa-search fa-lg"></i></button>
+</div>
+              </div>
+            </form>
+		</li>
+		<li><hr></li>
+		
+		<!-- Learning Hub -->
+		<li>
+		    <div class="row">
+		        <div class="col-xs-12">
+		            <h5>Find Articles By Category</h5>
+		            <a href="https://www.business-science.io/learn.html">
+		                <img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/learning_hub.jpg" alt="Learning Hub" class="shadow" style="width:100%">
+		            </a>
+		            <br><br>
+		            <div class="text-center">
+		                <a href="https://www.business-science.io/learn.html" class="btn btn-md btn-success">Learning Hub</a>
+		            </div>
+		        </div>
+		    </div>
+		</li>
+		<li><hr></li>
+
+		<!-- Blog Navigation -->
+		<!--
+		
+		-->
+
+		
+        <!-- Cheat Sheets -->
+		<li>
+		    <div class="row">
+		        <div class="col-xs-12">
+		            <h5>Download Cheat Sheets</h5>
+		            <a href="https://www.business-science.io/learn.html#cheatsheet-learn">
+		                <img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/r-cheatsheet-300x250.png" alt="Learning Hub" class="shadow" style="width:100%">
+		            </a>
+		            <br><br>
+		            <div class="text-center">
+		                <a href="https://www.business-science.io/learn.html#cheatsheet-learn" class="btn btn-md btn-success">Cheat Sheets</a>
+		            </div>
+		        </div>
+		    </div>
+		</li>
+		<li><hr></li>
+		
+		<!-- Popular Content -->
+		<li>
+			<h5>Popular Content</h5>
+					
+			<div class="list-group">
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				<a href="https://www.business-science.io/business/2017/12/27/six-reasons-to-use-R-for-business.html" class="list-group-item">
+					<h6 class="list-group-item-heading">6 Reasons To Learn R For Business</h6>
+				    
+							<img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/six_reasons_to_learn_r_for_business_retina.jpg" alt="..." style="width: 100%;" class="shadow">
+						
+				</a>
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+				<!-- 6 Reasons To Learn R For Business -->
+				
+				
+			</div>
+			
+		</li>
+		<li><hr></li>
+		
+		
+
+		<!-- Recent Posts -->
+		<li>
+			<h5>Recent Posts</h5>
+			<div class="list-group active">
+				
+				<a href="https://www.business-science.io/code-tools/2021/03/23/ggplot-code-with-tableau-esquisse.html" class="list-group-item">
+					<h6 class="list-group-item-heading">Build GGPLOT Code with Tableau Drag-and-Drop (R esquisse)</h6>
+						
+							<img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/preview.jpg" alt="..." style="width: 100%;" class="shadow">
+						
+				</a>
+				
+				<a href="https://www.business-science.io/code-tools/2021/03/16/intro-rshiny.html" class="list-group-item">
+					<h6 class="list-group-item-heading">A Gentle Introduction to R Shiny</h6>
+						
+							<img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/cover_preview.jpg" alt="..." style="width: 100%;" class="shadow">
+						
+				</a>
+				
+				<a href="https://www.business-science.io/code-tools/2021/03/15/introducing-modeltime-h2o.html" class="list-group-item">
+					<h6 class="list-group-item-heading">Introducing Modeltime H2O: Automatic Forecasting with H2O AutoML</h6>
+						
+							<img src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/modeltime_ecosystem.jpg" alt="..." style="width: 100%;" class="shadow">
+						
+				</a>
+				
+			</div>
+		</li>
+		<li><hr></li>
+
+        
+        <!-- Social -->
+        <li><h4 class="text-center">Follow Us</h4></li>
+        <li>
+		    <h5 class="text-center">DS Newsletter <small><a href="https://bit.ly/data-fundamentals" target="_blank">(Read Us)</a></small></h5>
+		</li>
+        <li>
+		    <h5 class="text-center">LinkedIn <small><a href="https://www.linkedin.com/company/business.science" target="_blank">(Follow Us)</a></small></h5>
+		</li>
+		<li>
+		    <h5 class="text-center">GitHub <small><a href="https://github.com/business-science" target="_blank">(Star Us)</a></small></h5>
+		</li>
+		<li>
+		    <h5 class="text-center">Twitter <small><a href="https://twitter.com/bizScienc" target="_blank">(Tweet At Us)</a></small></h5>
+			<div class="container">
+				<iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" class="twitter-timeline twitter-timeline-rendered" data-widget-id="profile:bizScienc" title="Twitter Timeline" style="position: static; visibility: visible; display: inline-block; width: 220px; height: 750px; padding: 0px; border: none; max-width: 100%; min-width: 180px; margin-top: 0px; margin-bottom: 0px; min-height: 200px;" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/saved_resource.html"></iframe> <script async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/widgets.js.download" charset="utf-8"></script>
+			</div>
+		</li>
+		
+
+		<!-- Resources -->
+		<!--
+		<li><hr></li>
+		<li>
+			<h5>Resources</h5>
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#R" aria-expanded="false" aria-controls="R">
+				  R: <span class="badge">20</span>
+				</button>
+				<div class="collapse" id="R">
+				  <div class="list-group">
+				    
+    				<a href=" https://www.r-bloggers.com" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="R blog aggregator combining blogs from many advanced R users.">R-Bloggers (Blog)</a>
+    				
+    				<a href="http://r4ds.had.co.nz/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A free online book that covers data wrangling and visualization with libraries such as dplyr + tidyr + ggplot2.">R for Data Science (Book)</a>
+    				
+    				<a href="http://adv-r.had.co.nz/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A free online book for R-programmers that want to improve their programming skills and understanding of the language.">Advanced R (Book)</a>
+    				
+    				<a href="http://r-pkgs.had.co.nz/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A free online book for R-programmers that want to develop R packages for reproducibility and so others can use.">R Packages (Book)</a>
+    				
+    				<a href="http://uc-r.github.io/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title=" A free online resource for using R for business analytics">UC Business Analytics R Programming Guide (Blog)</a>
+    				
+    				<a href="http://r-statistics.co/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title=" A free online resource for advanced R techniques">r-statistics.co (Blog)</a>
+    				
+    				<a href="https://www.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="The IDE that most R-programmers use. Its website has documentation & tutorials on various R-packages developed by RStudio.">RStudio (IDE)</a>
+    				
+    				<a href="https://www.tidyverse.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A set of packages that work in harmony because they share common data representations and API design. The packages are used extensively in our analysis.">tidyverse (R)</a>
+    				
+    				<a href="http://shiny.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A tool for building interactive R web applications. Its website includes Documentation + Webinars + Tutorials + Articles.">Shiny (R)</a>
+    				
+    				<a href="http://rmarkdown.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Language for combining R with Markdown for incorporating R into reproducible reports and websites. Its website includes documentation and examples.">RMarkdown (R)</a>
+    				
+    				<a href="https://tensorflow.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="The R interface to TensorFlow lets you work productively using the high-level Keras and Estimator APIs">R Interface To TensorFlow (R)</a>
+    				
+    				<a href="https://db.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="How to connect to databases in R">Databases Using R (R)</a>
+    				
+    				<a href="http://spark.rstudio.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Ho to connect to R using dplyr">Spark Using R (R)</a>
+    				
+    				<a href="https://www.h2o.ai/download/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="High accuracy machine learning platform">H2O Machine Learning</a>
+    				
+    				<a href="http://www.rdocumentation.org/taskviews" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="'Searching R packages can be difficult. RDocumentation pools libraries from CRAN + Bioconductor + Github for search. Libraries are broken into task views (i.e. categories related to task). Users can search by measures such as download frequency.'">RDocumentation (Search)</a>
+    				
+    				<a href="http://www-bcf.usc.edu/~gareth/ISL/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A free book on many of the most popular statistics and machine learning tools with applications in R.">Intro to Statistical Learning (Book)</a>
+    				
+    				<a href="https://www.otexts.org/book/fpp" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Free online book that covers forecasting in R.">Forecasting: Principles & Practice (Book)</a>
+    				
+    				<a href="http://tidytextmining.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A free online book focusing on text mining using the tidyverse principles">Tidy Text Mining with R (Book)</a>
+    				
+    				<a href="https://bookdown.org/yihui/blogdown/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Creating Websites with R Markdown">Blogdown (Book)</a>
+    				
+    				<a href="https://bookdown.org/yihui/bookdown/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Creating Books and Technical Documents with R Markdown">Bookdown (Book)</a>
+    				
+				  </div>
+				</div>
+			</div>
+
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#Python" aria-expanded="false" aria-controls="Python">
+				  Python: <span class="badge">14</span>
+				</button>
+				<div class="collapse" id="Python">
+				  <div class="list-group">
+				    
+    				<a href="https://www.python.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Home of Python. I strongly recommend downloading the Anaconda distribution if you're interested in data science.">Python.org</a>
+    				
+    				<a href="http://pydata.org/index.html" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A community for developers and users of open source data tools">PyData.org</a>
+    				
+    				<a href="https://www.continuum.io/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="The Anaconda distribution contains many of the necessary packages for data analysis and data science. If working from the comand line you can use commands such as 'conda install pandas'.">Anaconda</a>
+    				
+    				<a href="https://docs.continuum.io/anaconda/pkg-docs" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="A list of the default packages that comes with the Conda Python distribution.">Conda Package List</a>
+    				
+    				<a href="http://jupyter.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Jupyter Notebooks (formerly iPython) is a browser-based IDE that is the standard for creating reproducible reports in Python. It also works with R and Julia but has its roots in Python.">Jupyter Notebook</a>
+    				
+    				<a href="http://www.numpy.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="NumPy is the base package for working with statistics and arrays in Python. Many of the other Python data analysis packages depend on NumPy.">NumPy</a>
+    				
+    				<a href="http://scipy.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="SciPy extends NumPy by adding a collection of algorithms and high-level commands for manipulating and visualizing data.">SciPy</a>
+    				
+    				<a href="http://pandas.pydata.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Pandas makes working with data frames easy. It is very similar to dplyr in R.">Pandas</a>
+    				
+    				<a href="http://matplotlib.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Matplotlib is the base package for computing graphs in Python.">Matplotlib</a>
+    				
+    				<a href="https://stanford.edu/~mwaskom/software/seaborn/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Seaborn extends matplotlib to create aesthetical visualizations and for enhanced control of plot features.">Seaborn</a>
+    				
+    				<a href="http://scikit-learn.org/stable/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Scikit Learn implements many of the machine learning algorithms in Python. It is very similar to caret in R.">Scikit-Learn</a>
+    				
+    				<a href="https://www.tensorflow.org" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Google's open-source library for deep learning with neural networks and machine learning">TensorFlow</a>
+    				
+    				<a href="http://deeplearning.net/software/theano/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Theano is similar to NumPy except built for speed. Using the computer's GPU Theano is optimized to obtain speeds approaching C.">Theano</a>
+    				
+    				<a href="http://www.nltk.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="NLTK provides a suite of text processing libraries for classification + tokenization + stemming + tagging + parsing text. The website also has a link to a book written by NTLK's authors.">Natural Language Toolkit (NLTK)</a>
+    				
+				  </div>
+				</div>
+			</div>
+
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#PowerBI" aria-expanded="false" aria-controls="PowerBI">
+				  Power BI: <span class="badge">5</span>
+				</button>
+				<div class="collapse" id="PowerBI">
+				  <div class="list-group">
+				    
+    				<a href="https://powerbi.microsoft.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="The website for the Power BI software. A free version is available but you must provide a business email address.">Microsoft Power BI</a>
+    				
+    				<a href="https://powerbi.microsoft.com/en-us/documentation/powerbi-landing-page/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Microsofts documentation for the Power BI software.">Power BI Documentation</a>
+    				
+    				<a href="https://www.youtube.com/playlist?list=PL1N57mwBHtN0JFoKSR0n-tBkUJHeMP2cP" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Microsoft's 100+ videos on Power BI.">Power BI YouTube Playlist</a>
+    				
+    				<a href="https://app.powerbi.com/visuals/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Enhanced visuals for extending Power BI. Note that these are user-created and not the product of Microsoft.">Custom Visuals Gallery</a>
+    				
+    				<a href="http://community.powerbi.com/t5/R-Script-Showcase/bd-p/RVisuals" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Microsoft's gallery of how-to's on integrating R with Power BI.">R Script Showcase</a>
+    				
+				  </div>
+				</div>
+			</div>
+
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#Tableau" aria-expanded="false" aria-controls="Tableau">
+				  Tableau: <span class="badge">3</span>
+				</button>
+				<div class="collapse" id="Tableau">
+				  <div class="list-group">
+				    
+    				<a href="https://www.tableau.com/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="The website for Tableau software. A public version is available for free and can be used for sharing data analysis across the web.">Tableau</a>
+    				
+    				<a href="https://www.tableau.com/stories/topic/r" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Tableau integrates with R to add prediction capabilities to Tableau graphs.">R Integration</a>
+    				
+    				<a href="https://www.youtube.com/playlist?list=PL4cBp3I51XHsjwPLpz92TIcElsyB5Xiu-" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="ThorogoodBI's overview of integrating R scripts.">R YouTube Playlist</a>
+    				
+				  </div>
+				</div>
+			</div>
+
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" style="width: 100%;" type="button" data-toggle="collapse" data-target="#Excel" aria-expanded="false" aria-controls="Excel">
+				  Excel: <span class="badge">1</span>
+				</button>
+				<div class="collapse" id="Excel">
+				  <div class="list-group">
+					
+					<a href="http://chandoo.org/wp/welcome/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Chandoo's website exists to make you awesome in Excel. It will help tremendously in learning Excel.">Chandoo.org</a>
+					
+				  </div>
+				</div>
+			</div>
+
+			
+			<div class = "button-margin">
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#opensource" aria-expanded="false" aria-controls="opensource">
+				  Other Tools: <span class="badge">2</span>
+				</button>
+				<div class="collapse" id="opensource">
+				  <div class="list-group">
+				    
+    				<a href="https://www.gimp.org/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Open source graphic design + photo manipulation software used for generating images; comparable to Adobe photoshop">GIMP</a>
+    				
+    				<a href="https://inkscape.org/en/" class="list-group-item" data-toggle="tooltip" data-placement="bottom" title="Open source software for working with vector graphics; comparable to Adobe Illustrator">Inkscape</a>
+    				
+				  </div>
+				</div>
+			</div>
+		</li>
+		-->
+
+	</ul>
+</nav>
+	    </div>
+    </div>
+  </div>
+  
+  
+
+  
+  <!-- Left / Right Nav  -->
+  <div class="container">
+  	<div class="col-md-9 col-md-offset-0">
+		<div class="PageNavigation">
+		  
+		    <a class="prev" href="https://www.business-science.io/code-tools/2017/01/08/tidyquant-update-0-2-0.html">
+		    	<i class="fa fa-arrow-circle-left"></i>
+		    	tidyquant 0.2.0: Added Functionality for Financial Engineers and Business Analysts
+		    </a>
+		  
+		  
+		    <a class="next pull-right" href="https://www.business-science.io/code-tools/2017/01/22/tidyquant-update-0-3-0.html">
+		    	tidyquant 0.3.0: ggplot2 Enhancements, Real-Time Data, and More
+				<i class="fa fa-arrow-circle-right"></i>
+		    </a>
+		  
+		</div>
+	</div>
+  </div>
+</section>
+
+<!-- Disqus -->
+<div class="container">
+	<div class="col-md-9 col-md-offset-0">
+	
+<!-- Advertisement -->
+<!-- <div>
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    Blog-Top-1
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8190393691755597"
+         data-ad-slot="1616814268"
+         data-ad-format="auto"></ins>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div> -->
+
+<!-- Discuss -->
+<div class="comments">
+	<div id="disqus_thread"><iframe id="dsq-app8319" name="dsq-app8319" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/saved_resource(1).html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 801px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+	<script type="text/javascript">
+	    var disqus_shortname = 'mattdancho';
+
+
+	    (function() {
+	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+	</script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+
+	</div>
+</div>
+
+
+<!-- htmlwidgets dependencies -->
+<!--  -->
+
+
+	<!-- Footer -->
+    <footer class="text-center">
+        <div class="footer-above" style="">
+            <div class="container">
+                
+                <div class="row">
+                    <div class="col-md-4 col-sm-12">
+                        <img class="pull-left hidden-xs logo-shadow" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/business-science-logo.png" alt="Business Science Logo" style="width:150px;">
+                        <img class="visible-xs logo-shadow" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/business-science-logo.png" alt="Business Science Logo" style="width:100px;margin-left:auto;margin-right:auto;">
+                    </div>
+                    <div class="col-md-8 col-sm-12" style="">
+                        <div class="footer-list">
+                            <div class="col-sm-12 col-md-4">
+                            <h4>Company</h4>
+                            <ul style="list-style-type:none;">
+                                <li><a href="https://www.business-science.io/about.html" target="_blank">About</a></li>
+                                <li><a href="https://www.business-science.io/contact.html" target="_blank">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-12 col-md-4">
+                            <h4>Resources</h4>
+                            <ul style="list-style-type:none;">
+                                <li><a href="https://bit.ly/r-tips-newsletter" target="_blank">R-Tips Weekly</a></li>
+                                <li><a href="https://bit.ly/learning_labs" target="_blank">Learning Labs</a></li>
+                                <li><a href="https://www.business-science.io/blog/index.html" target="_blank">Blog</a></li>
+                                <li><a href="https://www.business-science.io/learn.html#cheatsheet-learn" target="_blank">Cheat Sheets</a></li>
+                                <li><a href="https://www.business-science.io/software.html" target="_blank">Software</a></li>
+                                <li><a href="https://apps.business-science.io/" target="_blank">App Gallery</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-12 col-md-4">
+                            <h4>Follow Us</h4>
+                            <ul style="list-style-type:none;">
+                                <li><a href="https://bit.ly/r-tips-newsletter" target="_blank">R-Tips Newsletter</a></li>
+                                <li><a href="https://www.linkedin.com/company/business.science" target="_blank">LinkedIn</a></li>
+                                <li><a href="https://twitter.com/bizScienc" target="_blank">Twitter</a></li>
+                                <li><a href="https://github.com/business-science" target="_blank">GitHub</a></li>
+                                <li><a href="https://www.facebook.com/Business-Science-LLC-754699134699054/" target="_blank">Facebook</a></li>
+                            </ul>
+                        </div>
+                        </div>    
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-3 col-xs-offset-9 hidden-xs hidden-sm">
+                        <hr>
+                        <div class="col-xs-8" style="padding-right:0px;">
+  <div class="form-group" id="inline">
+    <input type="hidden" name="q" value="site:business-science.io">
+    <input type="text" class="form-control search-query" name="q" placeholder="Search">
+  </div>
+</div>
+<div class="col-xs-2" style="padding-left:0px;">
+  <button type="submit" class="btn btn-default"><i class="fa fa-search fa-lg"></i></button>
+</div>
+                    </div>
+                </div>
+                <!-- Padding -->
+                <br><br>
+            </div>
+        </div>
+        
+        <div class="footer-below">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        Copyright © <a class="vglnk" href="http://www.business-science.io/" rel="nofollow"><span>www</span><span>.</span><span>business</span><span>-</span><span>science</span><span>.</span><span>io</span></a> 2020
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top page-scroll affix" id="top-link-block" style="left: -50%; transform: matrix(1, 0, 0, 1, 0, -20);">
+            <a class="btn btn-primary" href="https://www.business-science.io/code-tools/2017/01/21/multidplyr-part2.html#page-top" style="box-shadow: 0px 3px 3px rgba(0, 0, 0, .25);">
+            <i class="fa fa-chevron-up"></i>
+        </a>
+    </div>
+
+
+	<!--sumome-->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/saved_resource" data-sumo-site-id="070b24e7e068776f081d1a2a477c11bcfe804d8310bdfd4e44277194b8e41b07" async="async"></script>
+
+	<!--mailchimp-->
+<script id="mcjs">!function(c,h,i,m,p){m=c.createElement(h),p=c.getElementsByTagName(h)[0],m.async=1,m.src=i,p.parentNode.insertBefore(m,p)}(document,"script","https://chimpstatic.com/mcjs-connected/js/users/cc36813ecec32f8e7b5088961/0ed5b9d38b3b34864eed8fe57.js");</script>
+
+
+
+	
+
+<!-- Adsense -->
+<script async="" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/f.txt"></script>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({
+    google_ad_client: "ca-pub-8190393691755597",
+    enable_page_level_ads: true
+  });
+</script>
+
+<!-- jQuery -->
+<!-- <script src="/js/jquery.js"></script> -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/jquery-1.js.download"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/bootstrap_r3.min.js.download"></script>
+
+<!-- Plugin JavaScript -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/jquery.easing.min.js.download"></script>
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/classie.min.js.download"></script>
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/cbpAnimatedHeader.min.js.download"></script>
+
+<!-- Contact Form JavaScript -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/jqBootstrapValidation.min.js.download"></script>
+<!-- <script src="/js/contact_me.js"></script> -->
+
+<!-- MathJax processing for LaTeX -->
+<!--<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>-->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/MathJax.js.download"></script>
+
+
+<!-- Custom Theme JavaScript -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/freelancer-1.min.js.download"></script>
+
+<!--Owl Carousel-->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/owl.carousel.min.js.download"></script>
+
+
+<!--My scripts-->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/scripts-1.min.js.download"></script>
+
+<!-- Google+ -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/platform.js.download" async="" defer="" gapi_processed="true"></script>
+
+<!-- Facebook -->
+<div id="fb-root" class=" fb_reset"><div style="position: absolute; top: -10000px; width: 0px; height: 0px;"><div></div></div></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- Highlightjs -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/highlight.pack-1.js.download"></script>
+
+<script>
+    hljs.configure({useBR: false});
+    hljs.initHighlightingOnLoad();
+</script>
+
+
+<!-- Greensock -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/TweenMax.min.js.download"></script>
+
+<!-- Scrollmagic -->
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/ScrollMagic.min.js.download"></script>
+<script src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/debug.addIndicators.min.js.download"></script>
+
+
+
+<script>
+    function toggleCheatSheetDownload(value) {
+        if (value == "r") {
+            // document.getElementById("download-default").style.display = "none";
+            document.getElementById("download-r").style.display = "block";
+            document.getElementById("download-python").style.display = "none";
+            document.getElementById("download-segmentation").style.display = "none";
+            document.getElementById("download-ml").style.display = "none";
+        }
+        if (value == "python") {
+            // document.getElementById("download-default").style.display = "none";
+            document.getElementById("download-r").style.display = "none";
+            document.getElementById("download-python").style.display = "block";
+            document.getElementById("download-segmentation").style.display = "none";
+            document.getElementById("download-ml").style.display = "none";
+        }
+        if (value == "segmentation") {
+            // document.getElementById("download-default").style.display = "none";
+            document.getElementById("download-r").style.display = "none";
+            document.getElementById("download-python").style.display = "none";
+            document.getElementById("download-segmentation").style.display = "block";
+            document.getElementById("download-ml").style.display = "none";
+        }
+        if (value == "ml") {
+            // document.getElementById("download-default").style.display = "none";
+            document.getElementById("download-r").style.display = "none";
+            document.getElementById("download-python").style.display = "none";
+            document.getElementById("download-segmentation").style.display = "none";
+            document.getElementById("download-ml").style.display = "block";
+        }
+    }
+</script>
+
+
+
+
+<iframe scrolling="no" frameborder="0" allowtransparency="true" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/widget_iframe.0edc1ef9f8b82d9b79c6115bda79f63f.html" title="Twitter settings iframe" style="display: none;"></iframe><iframe style="display: none;" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/saved_resource(2).html"></iframe><div id="drift-frame-chat" class="drift-conductor-item drift-frame-chat drift-frame-chat-align-right with-transition" style="right: 12px; width: 400px !important; max-width: none; position: fixed; z-index: 2147483647; max-height: 0px; bottom: 88px; visibility: hidden; min-width: 320px; height: 100% !important; opacity: 0;"><iframe class="drift-frame-chat" scrolling="no" title="undefined" allow="autoplay; encrypted-media; fullscreen;" frameborder="0" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/chat.html" style="background: transparent; width: 400px !important; max-width: 100%; height: 100%; border: none; min-width: 100%; min-height: 100%;"></iframe></div><div id="drift-frame-controller" class="drift-conductor-item drift-frame-controller drift-frame-controller-align-right" style="right: 24px; width: 76px !important; max-width: none; position: fixed; z-index: 2147483647; height: 0px !important; bottom: 24px;"><iframe class="drift-frame-controller" scrolling="no" title="undefined" allow="autoplay; encrypted-media; fullscreen;" frameborder="0" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/core.html" style="background: transparent; width: 100%; max-width: 100%; height: 100%; border: none; min-width: 100%; min-height: 100%;"></iframe></div><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./Speed Up Your Code Part 2_ Parallel Processing Financial Data with multidplyr + tidyquant_files/saved_resource(3).html"></iframe></body></html>
