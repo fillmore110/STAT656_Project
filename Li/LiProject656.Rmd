@@ -22,7 +22,7 @@ rm(list=ls())
 First we must get our data. We will look at the logarithmic returns for stocks in the S&P500 over the two year period ranging from January 1, 2019 to December 31, 2020.
 
 ```{r import_data, cache=TRUE}
-returns <- tq_index('SP500') %>%
+returns <- tq_index('DOW') %>%
   tq_get(from='2017-01-01', to='2021-02-28', verbose=T) %>%
   group_by(symbol) %>%
   tq_transmute(select=adjusted, mutate_fun=periodReturn, period='daily', type='log', col_rename='log_daily_returns') %>%
@@ -32,7 +32,7 @@ returns <- tq_index('SP500') %>%
 ```
 ```{r}
 if(exists("returns")) {
-save(returns,file="sp500-4year.RData")
+save(returns,file="dow-4year.RData")
 }
 # https://datahub.io/core/s-and-p-500-companies
 sp500Sectors = read.csv("constituents_csv.csv") %>% 
@@ -41,7 +41,7 @@ sp500Sectors = read.csv("constituents_csv.csv") %>%
 ```
 
 ```{r}
-load("sp500-2year.RData")
+load("sp500-4year.RData")
 ```
 
 ```{r}
@@ -65,13 +65,14 @@ for (i in 1:length(clusters@cluster)) {
   stock = returns$symbol[i]
   row = c(stock, clusters@cluster[i], sp500Sectors[sp500Sectors$Symbol == stock,"sectorNumeric"], as.character(sp500Sectors[sp500Sectors$Symbol == stock,"sectorF"]))
   if(length(row) < 4) {
-    row = cbind(row, "NA", "NA")
+    row = c(row, "NA", "NA")
   }
   df = rbind(df, row)
 }
 
 colnames(df) = c("stock", "cluster", "sector", "sectorName")
 
+# What does this do?
 for(i in 1:k) {
   cat(df[df$sector == i,"sectorName"][1], " ",getmode(df[df$sector == i,"cluster"]), "\n")
 }
@@ -81,6 +82,43 @@ as.data.frame(table(clusters@cluster))
 df[df$cluster == 1,]
 
 #returns$symbol[which(clusters@cluster ==9)]
+# https://rpubs.com/esobolewska/dtw-time-series
+```
+
+# Subset 
+```{r}
+start_date = '2020-01-03'
+end_date = '2020-04-01'
+
+dates = as.Date(colnames(returns)[-1], format = "%Y-%m-%d") #Get rid of first index which is the stock
+
+stock_names = returns %>% select(1)
+returns_subset =  returns %>%
+    select((min(which(dates > start_date)) + 1):(max(which(dates < end_date) + 1)))
+
+
+returns_subset = bind_cols(stock_names, returns_subset)
+
+k=3
+clusters = tsclust(returns_subset %>% select(where(is.numeric)), k=k, distance="dtw_basic")
+plot(clusters)
+
+df = data.frame(stock = character(),
+                cluster = factor(),
+                sector = factor(),
+                sector = character())
+for (i in 1:length(clusters@cluster)) {
+  stock = returns$symbol[i]
+  row = c(stock, clusters@cluster[i], sp500Sectors[sp500Sectors$Symbol == stock,"sectorNumeric"], as.character(sp500Sectors[sp500Sectors$Symbol == stock,"sectorF"]))
+  if(length(row) < 4) {
+    row = c(row, "NA", "NA")
+  }
+  df = rbind(df, row)
+}
+
+colnames(df) = c("stock", "cluster", "sector", "sectorName")
+df[df$cluster == 1,]
+
 ```
 
 #Kmeans
@@ -100,6 +138,9 @@ plot(plotW)
 ```
 
 # CH Index With Kmeans
+
+Both predict that 3 clusters is sufficient
+
 ```{r}
 ch.index = function(x,kmax,iter.max=100,nstart=10, algorithm="Lloyd")
 {
@@ -115,6 +156,18 @@ ch[k-1] = (b/(k-1))/(w/(n-k))
 return(list(k=2:kmax,ch=ch))
 }
 
-ch = ch.index(clusters@distmat, 30, nstart=25)
+ch = ch.index(clusters@distmat, 15, nstart=25)
 plot(ch$k, ch$ch, type="o")
+```
+
+```{r}
+#https://jpiburn.github.io/fmpapi/
+library(fmpapi)
+
+api_key <- '7387eac0ea5783d3b57cfdb6e032c65a'
+fmp_api_key(api_key)
+readRenviron('~/.Renviron')
+
+my_stocks = c('AAPL', 'BA')
+key_metrics = fmp_key_metrics(my_stocks)
 ```
