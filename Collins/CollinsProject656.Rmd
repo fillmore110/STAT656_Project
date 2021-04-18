@@ -14,6 +14,7 @@ output:  pdf_document
 require(dplyr)
 require(tidyverse)
 require(tidyquant)
+require(lubridate)
 require(ggplot2)
 require(reshape2)
 require(dtw)
@@ -55,15 +56,24 @@ if (file.exists("StockData.Rdata")) {
 #Transforming the Raw Prices into Log-Returns, Volatility (sd)
 ```{r transforming prices}
 
-dataDailyReturns <- stockPrices %>%   
+returnsDaily <- stockPrices %>%   
   group_by(symbol) %>%
   tq_transmute(select = adjusted, 
                mutate_fun = periodReturn, 
                period = "daily", 
                type = "log", 
+               col_rename='returns') %>%
+  separate(date, into = c('year', 'month', 'day'))
+
+returnsMonthly <- stockPrices %>%   
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted, 
+               mutate_fun = periodReturn, 
+               period = "monthly", 
+               type = "log", 
                col_rename='returns')
- 
-dataYearlyReturns <- stockPrices %>%   
+
+returnsYearly <- stockPrices %>%   
   group_by(symbol) %>%
   tq_transmute(select = adjusted, 
                mutate_fun = periodReturn, 
@@ -72,23 +82,24 @@ dataYearlyReturns <- stockPrices %>%
                col_rename='returns') %>%
   select(-date)
 
-dataVol <- dataDailyReturns %>%   
+
+volMonthly <- returnsDaily %>%   
+  group_by(symbol, month) %>%
+  summarise(sd = sd(returns)) %>%
+  arrange(symbol, month)
+
+volYearly <- returnsDaily %>%   
   group_by(symbol) %>%
-  summarise(mean = mean(returns),
-            sd = sd(returns)) %>%
-  select(-mean)
+  summarise(sd = sd(returns))
 
-data <- left_join(dataYearlyReturns, dataVol, by = c("symbol" = "symbol"))
-
-dataCln <- data %>%
-  filter(symbol != 'ENPH')
-
+dataYearly <- left_join(returnsYearly, volYearly, by = c("symbol" = "symbol"))
+dataMonthly <- left_join(returnsYearly, volMonthly, by = c("symbol" = "symbol"))
 ```
 
 
-##K-Means Clustering
+##K-Means Clustering - Yearly
 ```{r finding optimal clusters}
-X = dataCln[,-1]
+X = dataYearly[,-1]
 plot(X)
 
 
