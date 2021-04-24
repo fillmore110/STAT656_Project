@@ -44,9 +44,12 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
-    load('D:\\James\\Documents\\tamu\\STAT656\\Homework\\project\\code\\STAT656_Project\\ShinyApp\\sp500-4year.RData')
-    sp500Sectors = read.csv("D:\\James\\Documents\\tamu\\STAT656\\Homework\\project\\code\\STAT656_Project\\Li\\constituents_csv.csv") %>% 
+    ##load('D:\\James\\Documents\\tamu\\STAT656\\Homework\\project\\code\\STAT656_Project\\ShinyApp\\sp500-4year.RData')
+    ##sp500Sectors = read.csv("D:\\James\\Documents\\tamu\\STAT656\\Homework\\project\\code\\STAT656_Project\\Li\\constituents_csv.csv") %>% 
+        
+        
+    load('sp500-4year.RData')
+    sp500Sectors = read.csv("constituents_csv.csv") %>% 
         mutate(sectorF = as.factor(Sector)) %>%
         mutate(sectorNumeric = as.numeric(sectorF))
     
