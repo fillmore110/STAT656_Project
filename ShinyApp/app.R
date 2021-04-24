@@ -36,6 +36,8 @@ ui <- fluidPage(
                 tabPanel("Plots",
                    plotOutput("distPlot"),
                    plotOutput("elbowPlot")),
+                tabPanel("Monthly Plots"
+                         ,plotOutput("MonthlyPlots")),
                 tabPanel("Table", DT::dataTableOutput("dis"))
             )
         )
@@ -49,6 +51,8 @@ server <- function(input, output) {
         
         
     load('sp500-4year.RData')
+    load('MonthlyReturnsSDsp500-4year.RData')
+    
     sp500Sectors = read.csv("constituents_csv.csv") %>% 
         mutate(sectorF = as.factor(Sector)) %>%
         mutate(sectorNumeric = as.numeric(sectorF))
@@ -95,6 +99,41 @@ server <- function(input, output) {
         colnames(df) = c("stock", "cluster", "sectorName")
         return(df)
     }))
+
+#Regular Clustering based on monthly end returns/volatility
+    stockInfo = sp500Sectors %>% select(Symbol, sectorF)
+    
+    clustersbyMo = reactive({
+        clustersbyMo =  dataMonthly %>%
+            filter(YrMo >= format(as.Date(input$start_date, format="%Y-%m-%d"),"%Y%m")
+                   & YrMo <= format(as.Date(input$end_date, format="%Y-%m-%d"),"%Y%m")) %>%
+            select('symbol', 'YrMo', 'returns','sd')
+        
+        mls <- split(clustersbyMo, f=clustersbyMo$YrMo)
+        myv <- c("returns","sd")
+        
+        kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv],
+                                                               centers=input$num_clusters)$cluster ; return(x)})
+        
+        clustersbyMo <- do.call(rbind, kls)
+        
+        
+    })
+    
+    output$MonthlyPlots <- renderPlot({
+        ggplot() +
+            geom_point(data = clustersbyMo(), 
+                       mapping = aes(x = clustersbyMo()$returns, 
+                                     y = clustersbyMo()$sd, 
+                                     colour = factor(clustersbyMo()$clust) )) +
+            facet_wrap(~ clustersbyMo()$YrMo, scales = "free_y") +
+            labs(title = 'Month-End Return and Volatility Clusters using K-Means' ,
+                 y = "Returns", 
+                 x = "Volatility",
+                 colour = "Clusters")
+    })
+
+
 }
 
 # Run the application 
