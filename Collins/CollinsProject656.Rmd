@@ -29,6 +29,55 @@ rm(list=ls())
 
 ```
 
+```{r app check}
+
+
+load("stockDatasp500-4year.Rdata")
+
+     sp500Sectors = read.csv("constituents_csv.csv") %>% 
+        mutate(sectorF = as.factor(Sector)) %>%
+        mutate(sectorNumeric = as.numeric(sectorF))
+stockInfo = sp500Sectors %>% select(Symbol, sectorF)
+
+load("YearlyReturnsSDsp500-4year.Rdata")
+load("MonthlyReturnsSDsp500-4year.Rdata")
+
+
+input = data.frame(start_date = '2019-12-03', end_date='2020-04-05',num_clusters=3, selSector='All')
+dataMonthly_subset =  dataMonthly %>%
+            filter(YrMo >= format(as.Date(input$start_date, format="%Y-%m-%d"),"%Y%m")
+                   & YrMo <= format(as.Date(input$end_date, format="%Y-%m-%d"),"%Y%m")) %>%
+            select('symbol', 'YrMo', 'returns','sd')
+
+
+
+
+mls <- split(dataMonthly_subset, f=dataMonthly_subset$YrMo)
+myv <- c("returns","sd")
+
+kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv],
+    centers=2)$cluster ; return(x)})
+
+finaldf <- do.call(rbind, kls)
+
+dataMonthly_subset$clusters = finaldf$clust
+
+dataMonthly_subset2 <- dataMonthly_subset %>%
+                left_join(stockInfo, ., by = c("Symbol" = "symbol")) %>%
+                drop_na()
+
+dataMonthly_subset3 <- dataMonthly_subset2 %>%
+                filter(sectorF == input$selSector)
+
+dataMonthly_subset4 <- dataMonthly_subset %>%
+                left_join(stockInfo, ., by = c("Symbol" = "symbol"))%>%
+                filter( if (input$selSector  != "") { sectorF == sectorF } else {  sectorF == sectorF  }) %>%
+                drop_na() 
+  
+   
+```
+
+
 #Pull in Stock Data
 We are evaluating S&P500 over a 1 year period from January 1, 2019 to December 31, 2019.
 ```{r get Stock Indices,include=FALSE,message=FALSE, warning=FALSE}
@@ -41,20 +90,23 @@ We are evaluating S&P500 over a 1 year period from January 1, 2019 to December 3
 
 ``` {r import quantitative data,  include=FALSE,message=FALSE, warning=FALSE}
 #Get Quantitative Data
-if (file.exists("StockData.Rdata")) {
-  load("StockData.Rdata")
-} else {
-  startDate = "2019-01-01"
-  endDate = "2019-12-31"
+  startDate = "2017-01-01"
+  endDate = "2021-02-28"
   #complete_cases = TRUE - removes symbols that return an NA 
   stockPrices <- tq_get(stockIndex$symbolFixed, get = "stock.prices", from = startDate, to =endDate, complete_cases = TRUE )
 
-  save(stockPrices, file="StockData.Rdata")
-}
+  save(stockPrices, file="stockDatasp500-4year.Rdata")
 ```
 
 #Transforming the Raw Prices into Log-Returns, Volatility (sd)
 ```{r transforming prices}
+load("stockDatasp500-4year.Rdata")
+
+     sp500Sectors = read.csv("constituents_csv.csv") %>% 
+        mutate(sectorF = as.factor(Sector)) %>%
+        mutate(sectorNumeric = as.numeric(sectorF))
+stockInfo = sp500Sectors %>% select(Symbol, sectorF)
+
 
 returnsDaily <- stockPrices %>%   
   group_by(symbol) %>%
@@ -71,7 +123,11 @@ returnsMonthly <- stockPrices %>%
                mutate_fun = periodReturn, 
                period = "monthly", 
                type = "log", 
-               col_rename='returns')
+               col_rename='returns') %>%
+  separate(date, into = c('year', 'month', 'day'))
+
+returnsMonthly$Help <- paste(returnsMonthly$symbol, returnsMonthly$year, returnsMonthly$month)
+
 
 returnsYearly <- stockPrices %>%   
   group_by(symbol) %>%
@@ -80,26 +136,53 @@ returnsYearly <- stockPrices %>%
                period = "yearly", 
                type = "log", 
                col_rename='returns') %>%
-  select(-date)
+  separate(date, into = c('year', 'month', 'day'))
+
+returnsYearly$Help <- paste(returnsYearly$symbol, returnsYearly$year)
 
 
 volMonthly <- returnsDaily %>%   
-  group_by(symbol, month) %>%
+  group_by(symbol, year, month) %>%
   summarise(sd = sd(returns)) %>%
-  arrange(symbol, month)
+  arrange(symbol, year, month)
+
+volMonthly$Help <- paste(volMonthly$symbol, volMonthly$year, volMonthly$month)
 
 volYearly <- returnsDaily %>%   
-  group_by(symbol) %>%
-  summarise(sd = sd(returns))
+  group_by(symbol, year) %>%
+  summarise(sd = sd(returns)) %>%
+  arrange(symbol)
 
-dataYearly <- left_join(returnsYearly, volYearly, by = c("symbol" = "symbol"))
-dataMonthly <- left_join(returnsYearly, volMonthly, by = c("symbol" = "symbol"))
+volYearly$Help <- paste(volYearly$symbol, volYearly$year)
+
+
+dataYearly <- left_join(returnsYearly, volYearly, by = c("Help" = "Help"))
+dataYearly <- dataYearly %>% 
+  select('symbol.x','year.x','returns','sd') %>% 
+  rename('symbol'='symbol.x', 'year'='year.x' )
+
+dataMonthly <- left_join(returnsMonthly, volMonthly, by = c("Help" = "Help"))
+dataMonthly <- dataMonthly %>% 
+  select('symbol.x','year.x','month.x','returns','sd') %>% 
+  rename('symbol'='symbol.x', 'month' = 'month.x','year'='year.x' )
+dataMonthly$YrMo <- paste(dataMonthly$year, dataMonthly$month, sep = "")
+dataMonthly <- dataMonthly %>% relocate('symbol','YrMo','year','month','returns','sd')
+
+
+save(dataYearly, file="YearlyReturnsSDsp500-4year.Rdata")
+save(dataMonthly, file="MonthlyReturnsSDsp500-4year.Rdata")
 ```
+
+
+
+
+
+
 
 
 ##K-Means Clustering - Yearly
 ```{r finding optimal clusters}
-X = dataYearly[,-1]
+X = dataYearly[,-(1:3)]
 plot(X)
 
 

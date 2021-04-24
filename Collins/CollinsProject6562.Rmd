@@ -1,0 +1,218 @@
+---
+title: "STAT 656: Project "
+subtitle: "Unsupervised Time Series Clustering of S&P 500"
+author: "Rebeca Collins"
+date: "4/30/2021"
+output:  pdf_document
+---
+
+```{r setup, include=FALSE,message=FALSE, warning=FALSE}
+
+#require(caret)
+#require(quantmod)
+
+require(dplyr)
+require(tidyverse)
+require(tidyquant)
+require(lubridate)
+require(ggplot2)
+require(reshape2)
+require(dtw)
+require(dtwclust)
+require(TSclust)
+require(timetk)
+require(cluster)
+require(factoextra)
+require(dendextend)
+
+rm(list=ls())
+
+```
+
+#Pull in Stock Data
+We are evaluating S&P500 over a 1 year period from January 1, 2019 to December 31, 2019.
+```{r get Stock Indices,include=FALSE,message=FALSE, warning=FALSE}
+#Get Stock Index
+  stockIndex = tq_index("SP500") #SP500
+
+#Fix stock symbols
+  stockIndex$symbolFixed = gsub("\\.", "-",stockIndex$symbol)
+```
+
+``` {r import quantitative data,  include=FALSE,message=FALSE, warning=FALSE}
+#Get Quantitative Data
+if (file.exists("stockDatasp500-4year.Rdata")) {
+  load("StockData.Rdata")
+} else {
+  startDate = "2017-01-01"
+  endDate = "2021-02-28"
+  #complete_cases = TRUE - removes symbols that return an NA 
+  stockPrices <- tq_get(stockIndex$symbolFixed, get = "stock.prices", from = startDate, to =endDate, complete_cases = TRUE )
+
+  save(stockPrices, file="stockDatasp500-4year.Rdata")
+}
+```
+
+#Transforming the Raw Prices into Log-Returns, Volatility (sd)
+```{r transforming prices}
+
+returnsDaily <- stockPrices %>%   
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted, 
+               mutate_fun = periodReturn, 
+               period = "daily", 
+               type = "log", 
+               col_rename='returns') %>%
+  separate(date, into = c('year', 'month', 'day'))
+
+returnsMonthly <- stockPrices %>%   
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted, 
+               mutate_fun = periodReturn, 
+               period = "monthly", 
+               type = "log", 
+               col_rename='returns')
+
+returnsYearly <- stockPrices %>%   
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted, 
+               mutate_fun = periodReturn, 
+               period = "yearly", 
+               type = "log", 
+               col_rename='returns')
+
+volMonthly <- returnsDaily %>%   
+  group_by(symbol, month, year) %>%
+  summarise(sd = sd(returns)) %>%
+  arrange(symbol, month, year)
+
+volYearly <- returnsDaily %>%   
+  group_by(symbol, year) %>%
+  summarise(sd = sd(returns)) %>%
+  arrange(symbol, year)
+
+dataYearly <- left_join(returnsYearly, volYearly, by = c("symbol" = "symbol"))
+dataMonthly <- left_join(returnsMonthly, volMonthly, by = c("symbol" = "symbol"))
+
+
+## save(stockPrices, file="MonthlyReturnsSDsp500-4year.Rdata")
+```
+
+
+##K-Means Clustering - Yearly
+```{r finding optimal clusters}
+X = dataYearly[,-1]
+plot(X)
+
+
+fviz_nbclust(X, FUN = hcut, method = "wss")
+fviz_nbclust(X, FUN = hcut, method = "silhouette")
+gap_stat <- clusGap(X, FUN = hcut, nstart = 25, K.max = 20, B = 50)
+fviz_gap_stat(gap_stat)
+kmeans.out = kmeans(X,centers=2,nstart=25)
+plot(X, col=(kmeans.out$cluster+1), xlab="", ylab="",
+pch=20, cex=2)
+
+
+K = 2
+```
+##Distance Measure
+```{r Average Linkage}
+
+dist = dist(X,method='euclidean')
+
+```
+##Hierarchical Clustering
+```{r Average Linkage}
+hcAverage = hclust(dist,method='average')
+plot(hcAverage, main = 'Average Cluster Dendrogram')
+rect.hclust(hcAverage, k=K)
+hcAverageCut = cutree(hcAverage, k=K)
+
+plot(1:length(hcAverageCut), hcAverageCut, main = 'Average cluster of feature indices', xlab = "feature index", ylab = "cluster")
+```
+```{r centroid linkage}
+hcCentroid = hclust(dist,method='centroid')
+plot(hcCentroid, main = 'Average Centroid Dendrogram')
+rect.hclust(hcCentroid, k=K)
+hcCentroidCut = cutree(hcCentroid, k=K)
+
+plot(1:length(hcCentroidCut), hcCentroidCut, main = 'Centroid cluster of feature indices', xlab = "feature index", ylab = "cluster")
+```
+```{r complete linkage}
+hcComplete = hclust(dist,method='complete')
+plot(hcComplete, main = 'Average Cluster Dendrogram')
+rect.hclust(hcComplete, k=K)
+hcCompleteCut = cutree(hcComplete, k=K)
+
+plot(1:length(hcCompleteCut), hcCompleteCut, main = 'Complete cluster of feature indices', xlab = "feature index", ylab = "cluster")
+```
+```{r single linkage}
+hcSingle = hclust(dist,method='single')
+plot(hcSingle, main = 'Single Cluster Dendrogram')
+rect.hclust(hcSingle, k=K)
+hcSingleCut = cutree(hcSingle, k=K)
+
+plot(1:length(hcSingleCut), hcSingleCut, main = 'Single cluster of feature indices', xlab = "feature index", ylab = "cluster")
+```
+
+
+
+#Time Series Clustering
+##Transforming the Raw Prices into Log-Returns
+```{r log returns}
+returns<-stockPrices %>%   
+  group_by(symbol) %>%
+  tq_mutate(select = adjusted, mutate_fun = periodReturn, period = "daily", type = "log", col_rename='returns') %>%
+  select(symbol,date,returns) %>% 
+  spread(date,returns) %>% 
+  drop_na() %>% 
+  select(-'2019-01-02')
+
+
+returnsList <-setNames(split(returns[,-1], seq(nrow(returns[,-1]))), rownames(returns[,-1]))
+names(returnsList) <- returns$symbol
+
+returns2<-stockPrices %>%   
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted, 
+               mutate_fun = periodReturn, 
+               period = "daily", 
+               type = "log", 
+               col_rename='returns') %>%
+  filter(date != '2019-01-02')
+```
+##Finding the  distance
+```{r DTW Distance}
+distMatrix <- dist(returns[-1], method="DTW")
+```
+##K-Means Clustering
+```{r finding the number of clusters}
+
+```
+
+##Hierarchical Clustering
+```{r average linkage}
+hcAverage <- hclust(distMatrix, method="average")
+plot(hcAverage, labels=returns$symbol, main="Average Cluster Dendogram")
+
+hcTSAverage <- tsclust(returnsList, type = "h", k = 5,
+preproc = zscore, seed = 1,
+distance = "dtw", centroid = shape_extraction,
+control = hierarchical_control(method = "average"))
+plot(hcTSAverage, labels=returns$symbol, main="Average Cluster Dendogram")
+plot(hcTSAverage, type = "sc")
+
+```
+```{r centroid linkage}
+hcCentroid <- hclust(distMatrix, method="centroid")
+plot(hcCentroid, labels=returns$symbol, main="Centroid Cluster Dendogram")
+```
+```{r complete linkage}
+hcComplete <- hclust(distMatrix, method="complete")
+plot(hcComplete, labels=returns$symbol, main="Complete Cluster Dendogram")
+```
+```{r single linkage}
+hcSingle <- hclust(distMatrix, method="single")
+plot(hcSingle, labels=returns$symbol, main="Single Cluster Dendogram")
+```
