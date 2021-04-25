@@ -43,7 +43,7 @@ load("YearlyReturnsSDsp500-4year.Rdata")
 load("MonthlyReturnsSDsp500-4year.Rdata")
 
 
-input = data.frame(start_date = '2019-12-03', end_date='2020-04-05',num_clusters=3, selSector='All')
+input = data.frame(start_date = '2019-12-03', end_date='2020-04-05',num_clusters=3, selSector='Health Care')
 dataMonthly_subset =  dataMonthly %>%
             filter(YrMo >= format(as.Date(input$start_date, format="%Y-%m-%d"),"%Y%m")
                    & YrMo <= format(as.Date(input$end_date, format="%Y-%m-%d"),"%Y%m")) %>%
@@ -56,7 +56,7 @@ mls <- split(dataMonthly_subset, f=dataMonthly_subset$YrMo)
 myv <- c("returns","sd")
 
 kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv],
-    centers=2)$cluster ; return(x)})
+    centers=input$num_clusters)$cluster ; return(x)})
 
 finaldf <- do.call(rbind, kls)
 
@@ -70,10 +70,21 @@ dataMonthly_subset3 <- dataMonthly_subset2 %>%
                 filter(sectorF == input$selSector)
 
 dataMonthly_subset4 <- dataMonthly_subset %>%
-                left_join(stockInfo, ., by = c("Symbol" = "symbol"))%>%
-                filter( if (input$selSector  != "") { sectorF == sectorF } else {  sectorF == sectorF  }) %>%
+                left_join(stockInfo, ., by = c("Symbol" = "symbol"))
                 drop_na() 
   
+
+
+        ggplot() +
+            geom_point(data = dataMonthly_subset4, 
+                       mapping = aes(x = dataMonthly_subset4$returns, 
+                                     y = dataMonthly_subset4$sd, 
+                                     colour = factor(dataMonthly_subset4$clust) )) +
+            facet_wrap(~ dataMonthly_subset4$YrMo, scales = "free_y") +
+            labs(title = 'Monthly Return and Volatility Clusters' ,
+                 y = "Returns", 
+                 x = "Volatility",
+                 colour = "Clusters")
    
 ```
 

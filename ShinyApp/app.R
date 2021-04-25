@@ -33,12 +33,16 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             tabsetPanel(
-                tabPanel("Plots",
+                tabPanel("Time Series Plots",
                    plotOutput("distPlot"),
                    plotOutput("elbowPlot")),
-                tabPanel("Monthly Plots"
+                tabPanel("Time Series Cluster Table", DT::dataTableOutput("dis")),
+                tabPanel("Month-End Plots"
                          ,plotOutput("MonthlyPlots")),
-                tabPanel("Table", DT::dataTableOutput("dis"))
+                tabPanel("Month-End Table", DT::dataTableOutput("MoTbl")),
+                tabPanel("Year-End Plots"
+                         ,plotOutput("YearlyPlots")),
+                tabPanel("Year-End Table", DT::dataTableOutput("YrTbl"))
             )
         )
     )
@@ -119,7 +123,6 @@ server <- function(input, output) {
         
         
     })
-    
     output$MonthlyPlots <- renderPlot({
         ggplot() +
             geom_point(data = clustersbyMo(), 
@@ -132,8 +135,80 @@ server <- function(input, output) {
                  x = "Volatility",
                  colour = "Clusters")
     })
+    clustersbyMoSector = reactive({
+        clustersbyMoSector =  dataMonthly %>%
+            filter(YrMo >= format(as.Date(input$start_date, format="%Y-%m-%d"),"%Y%m")
+                   & YrMo <= format(as.Date(input$end_date, format="%Y-%m-%d"),"%Y%m")) %>%
+            select('symbol', 'YrMo', 'returns','sd')
+        
+        mls <- split(clustersbyMoSector, f=clustersbyMoSector$YrMo)
+        myv <- c("returns","sd")
+        
+        kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv],
+                                                               centers=input$num_clusters)$cluster ; return(x)})
+        
+        clustersbyMoSector <- do.call(rbind, kls)
+        clustersbyMoSector <- left_join(stockInfo, clustersbyMoSector, by = c("Symbol" = "symbol")) %>%
+            drop_na()  %>%
+            mutate(returns = round(returns, 2), stDev = round(sd, 4)) %>%
+            rename(sectorName = sectorF, cluster = clust) %>%
+            select(-sd) %>% relocate(stDev, .after = returns)
+        
+    })
+    
+    output$MoTbl  = DT::renderDataTable({
+        clustersbyMoSector()
+    })
+    
+#Regular Clustering based on Year end returns/volatility
+    clustersbyYr = reactive({
+        clustersbyYr =  dataYearly
+        
+        mls <- split(clustersbyYr, f=clustersbyYr$year)
+        myv <- c("returns","sd")
+        
+        kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv], centers=input$num_clusters)$cluster ; return(x)})
+        
+        clustersbyYr <- do.call(rbind, kls)
+        
+        
+    })
+    
+    output$YearlyPlots <- renderPlot({
+        ggplot() +
+            geom_point(data = clustersbyYr(), 
+                       mapping = aes(x = clustersbyYr()$returns, 
+                                     y = clustersbyYr()$sd, 
+                                     colour = factor(clustersbyYr()$clust) )) +
+            facet_wrap(~ clustersbyYr()$year, scales = "free_y") +
+            labs(title = 'Year-End Return and Volatility Clusters using K-Means' ,
+                subtitle = '01-2017 through 02-2021 Aggregated by Year',
+                 y = "Returns", 
+                 x = "Volatility",
+                 colour = "Clusters")
+    })
 
-
+    clustersbyYrSector  = reactive({
+        clustersbyYrSector =  dataYearly
+        
+        mls <- split(clustersbyYrSector, f=clustersbyYrSector$year)
+        myv <- c("returns","sd")
+        
+        kls <- lapply(X=mls, FUN=function(x){x$clust <- kmeans(x[, myv],
+                                                               centers=input$num_clusters)$cluster ; return(x)})
+        
+        clustersbyYrSector <- do.call(rbind, kls)
+        clustersbyYrSector <- left_join(stockInfo, clustersbyYrSector, by = c("Symbol" = "symbol")) %>%
+            drop_na()  %>%
+            mutate(returns = round(returns, 2), stDev = round(sd, 4)) %>%
+            rename(sectorName = sectorF, cluster = clust) %>%
+            select(-sd) %>% relocate(stDev, .after = returns)
+    })
+    
+    
+    output$YrTbl  = DT::renderDataTable({
+        clustersbyYrSector()
+    })
 }
 
 # Run the application 

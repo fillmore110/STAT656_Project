@@ -128,12 +128,9 @@ server <- function(input, output) {
         
         clustersbyMo <- do.call(rbind, kls)
         clustersbyMo <- clustersbyMo %>%
-            left_join(stockInfo, ., by = c("Symbol"="symbol")) %>% 
-            select('Symbol', 'YrMo', 'returns','sd','sectorF') %>% 
-            filter( if (input$selSector  != "") { sectorF == input$selSector } else {  sectorF == sectorF  }) %>%
+            left_join(stockInfo, ., by = c("Symbol" = "symbol")) %>% 
+            filter( if (input$selSector  == "All") { sectorF == sectorF } else {  sectorF == input$selSector  }) %>%
             drop_na()
-            
- 
         
     })
     
