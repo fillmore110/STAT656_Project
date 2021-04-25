@@ -56,6 +56,7 @@ server <- function(input, output) {
         
     load('sp500-4year.RData')
     load('MonthlyReturnsSDsp500-4year.RData')
+    load('YearlyReturnsSDsp500-4year.RData')
     
     sp500Sectors = read.csv("constituents_csv.csv") %>% 
         mutate(sectorF = as.factor(Sector)) %>%
