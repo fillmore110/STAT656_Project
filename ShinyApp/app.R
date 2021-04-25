@@ -37,6 +37,11 @@ ui <- fluidPage(
                    plotOutput("distPlot"),
                    plotOutput("elbowPlot")),
                 tabPanel("Time Series Cluster Table", DT::dataTableOutput("dis")),
+                tabPanel("Volatility Time Series Plots",
+                         plotOutput("volDistPlot"),
+                         plotOutput("volElbowPlot")),
+                tabPanel("Volatility Time Series Cluster Table", DT::dataTableOutput("volDis")),
+                tabPanel("Returns vs. Volatilty Confusion", plotOutput('confMatrix')),
                 tabPanel("Month-End Plots"
                          ,plotOutput("MonthlyPlots")),
                 tabPanel("Month-End Table", DT::dataTableOutput("MoTbl")),
@@ -55,6 +60,7 @@ server <- function(input, output) {
         
         
     load('sp500-4year.RData')
+    load('sp500-4year-vol.RData')
     load('MonthlyReturnsSDsp500-4year.RData')
     load('YearlyReturnsSDsp500-4year.RData')
     
@@ -63,6 +69,12 @@ server <- function(input, output) {
         mutate(sectorNumeric = as.numeric(sectorF))
     
     dates = as.Date(colnames(returns)[-1], format = "%Y-%m-%d") #Get rid of first index which is the stock
+    
+    returns_vol = returns_vol %>%
+        add_column(date=dates) %>%
+        pivot_longer(cols=!date) %>%
+        pivot_wider(names_from = date, values_from = value) %>%
+        rename(symbol = name)
     
     stock_names = returns %>% select(1)
     clusters = reactive({
@@ -75,9 +87,25 @@ server <- function(input, output) {
         clusters = tsclust(returns_subset %>% select(where(is.numeric)), k=input$num_clusters, distance="dtw_basic")
     })
     
+    vol_clusters = reactive({
+        returns_vol_subset =  returns_vol %>%
+            select((min(which(dates > input$start_date)) + 1):(max(which(dates < input$end_date) + 1)))
+        
+        
+        returns_vol_subset = bind_cols(stock_names, returns_vol_subset)
+        
+        vol_clusters = tsclust(returns_vol_subset %>% select(where(is.numeric)), k=input$num_clusters, distance="dtw_basic")
+    })
+    
     output$distPlot <- renderPlot({
 
         plot(clusters())
+        
+    })
+    
+    output$volDistPlot <- renderPlot({
+        
+        plot(vol_clusters())
         
     })
     
@@ -88,6 +116,15 @@ server <- function(input, output) {
             plotW[K-1] = kmeans(clust@distmat,centers=K,nstart=25)$tot.withinss
         }
         plot(2:10, plotW, xlab="numClusters", title="Elbow Plot")
+    })
+    
+    output$volElbowPlot <- renderPlot({
+        vol_clust = vol_clusters()
+        plotW = rep(0,9)
+        for(K in 2:10){
+            plotW[K-1] = kmeans(vol_clust@distmat,centers=K,nstart=25)$tot.withinss
+        }
+        plot(2:10, plotW, xlab="numClusters", title="Volatility Elbow Plot")
     })
     
     output$dis <-DT::renderDataTable(DT::datatable({
@@ -104,7 +141,45 @@ server <- function(input, output) {
         colnames(df) = c("stock", "cluster", "sectorName")
         return(df)
     }))
-
+    
+    output$volDis <-DT::renderDataTable(DT::datatable({
+        vol_clust = vol_clusters()
+        df = data.frame(stock = character(),
+                        cluster = factor(),
+                        sector = character())
+        
+        for (i in 1:length(vol_clust@cluster)) {
+            stock = returns$symbol[i]
+            row = c(stock, vol_clust@cluster[i], as.character(sp500Sectors[sp500Sectors$Symbol == stock,"sectorF"]))
+            df = rbind(df, row)
+        }
+        colnames(df) = c("stock", "cluster", "sectorName")
+        return(df)
+    }))
+    
+    output$confMatrix <- renderPlot({
+        clust = clusters()
+        vol_clust = vol_clusters()
+        
+        clust = fct_infreq(as.factor(clust@cluster))
+        vol_clust = fct_infreq(as.factor(vol_clust@cluster))
+        
+        levels(clust) = 1:length(levels(clust))
+        levels(vol_clust) = 1:length(levels(vol_clust))
+        
+        confusion_matrix = as.data.frame(table(clust, vol_clust))
+        
+        ggplot(data = confusion_matrix,
+               mapping = aes(x = clust,
+                             y = vol_clust)) +
+            geom_tile(aes(fill = Freq)) +
+            geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+            scale_fill_gradient(low = "blue",
+                                high = "red",
+                                trans = "log")
+        
+    })
+    
 #Regular Clustering based on monthly end returns/volatility
     stockInfo = sp500Sectors %>% select(Symbol, sectorF)
     
