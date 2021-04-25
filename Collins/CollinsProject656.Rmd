@@ -43,14 +43,11 @@ load("YearlyReturnsSDsp500-4year.Rdata")
 load("MonthlyReturnsSDsp500-4year.Rdata")
 
 
-input = data.frame(start_date = '2019-12-03', end_date='2020-04-05',num_clusters=3, selSector='Health Care')
+input = data.frame(start_date = '2019-01-01', end_date='2019-12-31',num_clusters=3, selSector='Health Care')
 dataMonthly_subset =  dataMonthly %>%
             filter(YrMo >= format(as.Date(input$start_date, format="%Y-%m-%d"),"%Y%m")
                    & YrMo <= format(as.Date(input$end_date, format="%Y-%m-%d"),"%Y%m")) %>%
             select('symbol', 'YrMo', 'returns','sd')
-
-
-
 
 mls <- split(dataMonthly_subset, f=dataMonthly_subset$YrMo)
 myv <- c("returns","sd")
@@ -70,7 +67,7 @@ dataMonthly_subset3 <- dataMonthly_subset2 %>%
                 filter(sectorF == input$selSector)
 
 dataMonthly_subset4 <- dataMonthly_subset %>%
-                left_join(stockInfo, ., by = c("Symbol" = "symbol"))
+                left_join(stockInfo, ., by = c("Symbol" = "symbol")) %>%
                 drop_na() 
   
 
@@ -85,7 +82,23 @@ dataMonthly_subset4 <- dataMonthly_subset %>%
                  y = "Returns", 
                  x = "Volatility",
                  colour = "Clusters")
-   
+        
+dataMonthly_subset5 <- dataMonthly_subset4 %>% 
+                group_by(YrMo, clusters) %>% 
+                summarise(AvgReturn=mean(returns), AvgSd=mean(sd))
+
+ ggplot() +
+            geom_point(data = dataMonthly_subset5, 
+                       mapping = aes(x = dataMonthly_subset5$YrMo, 
+                                     y = dataMonthly_subset5$AvgReturn, 
+                                     colour = factor(dataMonthly_subset5$clusters) ))
+   ggplot(data=dataMonthly_subset5, 
+          aes(x=dataMonthly_subset5$YrMo, 
+              y=dataMonthly_subset5$AvgSd, 
+              group=dataMonthly_subset5$clusters)) +
+  geom_line(aes(colour = factor(dataMonthly_subset5$clusters)))
+
+
 ```
 
 

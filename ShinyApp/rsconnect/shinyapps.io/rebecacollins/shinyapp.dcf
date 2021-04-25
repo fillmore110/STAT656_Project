@@ -1,0 +1,11 @@
+name: shinyapp
+title:
+username:
+account: rebecacollins
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4028453
+bundleId: 4517339
+url: https://rebecacollins.shinyapps.io/shinyapp/
+when: 1619375766.48741
+lastSyncTime: 1619375766.4884
